@@ -1,0 +1,17 @@
+<div class="editor-holder">
+  <ace-editor
+    [(text)]="text"
+    [theme]="theme"
+    [mode]="mode"
+    [autoUpdateContent]="true"
+    [durationBeforeCallback]="1000"
+    (textChanged)="onChange($event)"
+    class="editor-style"
+    #editor
+  ></ace-editor>
+</div>
+<!--(-->
+<!--display: flex-->
+<!--[theme]="'vibrant_ink'"-->
+<!--[theme]="'tomorrow_night_bright'"-->
+<!--[theme]="'chrome'"-->

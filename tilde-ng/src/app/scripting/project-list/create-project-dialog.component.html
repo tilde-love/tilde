@@ -1,0 +1,12 @@
+<section class="mat-typography" style="width: 100%">
+  <h1 mat-dialog-title>{{data.title}}</h1>
+  <div mat-dialog-content style="width: 100%">
+    <mat-form-field style="width: 100%">
+      <input matInput placeholder="Name" [(ngModel)]="data.name">
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions style="width: 100%; display: flex; justify-content: space-between;">
+    <button mat-button (click)="onNoClick()">Cancel</button>
+    <button mat-raised-button color="accent" [mat-dialog-close]="data.name" cdkFocusInitial>Create</button>
+  </div>
+</section>

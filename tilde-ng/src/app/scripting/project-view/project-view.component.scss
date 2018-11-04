@@ -1,0 +1,51 @@
+.flex-container {
+  flex: 1 1 auto; height: 100%; display: flex;
+}
+
+.menu-toggle { margin-right: 10px; }
+
+.sidenav {
+  min-width: 400px;
+}
+
+.invisibleOnTiny {
+  visibility: visible;
+  //display: flex;
+}
+.displayOnTiny { display: none; }
+
+@media screen and (min-width: 1025px) {
+  .menu-toggle {
+    display: none;
+  }
+
+}
+
+@media screen and (max-width: 414px) {
+  .sidenav {
+    min-width: 100%;
+  }
+
+  .invisibleOnTiny {
+    visibility: hidden;
+    //display: none;
+  }
+  .displayOnTiny { display: inherit; }
+}
+
+.project-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.center-fill {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: space-around;
+  align-items: center;
+}
+
+//.editor-scroller { overflow: scroll; min-width: 100% }

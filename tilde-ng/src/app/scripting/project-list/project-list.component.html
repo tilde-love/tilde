@@ -1,0 +1,43 @@
+<div
+       class="mat-typography project-list">
+  <div class="project-item">
+    <button (click)="openCreateProjectDialog()" mat-button class="add-project-button">
+      <mat-icon mat-card-lg-image color="accent" class="add-project-icon">create_new_folder</mat-icon>
+    </button>
+  </div>
+
+  <div *ngFor="let projectUri of projectUris | async"
+       class="project-item">
+    <button mat-button [routerLink]="getRoute(projectUri)" class="add-project-button">
+      <mat-icon mat-card-lg-image class="add-project-icon">folder</mat-icon>
+    </button>
+    <!--style="width: 244px; height: 190px; padding: 0px"-->
+    <mat-toolbar class="item-flex">
+      {{projectUri}}
+      <span class="fixed-spacer" ></span>
+      <section>
+        <button mat-icon-button
+                (click)="loadProject(projectUri)"
+                matTooltip="Start"
+                matTooltipPosition="above"
+                matTooltipShowDelay="500"
+                [color]="projectUri === currentProject ? 'accent' : ''">
+          <mat-icon>play_circle_filled</mat-icon>
+        </button>
+        <a mat-icon-button [href]="getFileUrl(projectUri)"
+           matTooltip="Download"
+           matTooltipPosition="above"
+           matTooltipShowDelay="500">
+          <mat-icon>get_app</mat-icon>
+        </a>
+        <button mat-icon-button (click)="openDeleteProjectDialog(projectUri)"
+                matTooltip="Delete" matTooltipPosition="above" matTooltipShowDelay="500" color="warn">
+          <mat-icon>delete_forever</mat-icon>
+        </button>
+      </section>
+    </mat-toolbar>
+  </div>
+
+
+</div>
+

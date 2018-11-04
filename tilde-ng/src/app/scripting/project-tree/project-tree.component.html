@@ -1,0 +1,33 @@
+<ul>
+  <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="project-tree">
+    <mat-nested-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+      <li>
+        <div class="tree-label">
+          <button mat-icon-button
+                  (click)="toggle(node)"
+                  [style.display]="node.isFile ? 'none' : 'inherit'"
+                  [color]="node.color">
+            <mat-icon>
+              {{node.isOpen ? 'folder_open' : 'folder'}}
+            </mat-icon>
+          </button>
+
+          <button mat-icon-button
+                  [style.display]="node.isFile ? 'inherit' : 'none'"
+                  [routerLink]="node.uri"
+                  [color]="node.color">
+            <mat-icon>
+              {{node.icon}}
+            </mat-icon>
+          </button>
+          {{node.filename}}
+        </div>
+
+        <ul *ngIf="node.isOpen">
+        <!--<ul *ngIf="treeControl.isExpanded(node)"-->
+          <ng-container matTreeNodeOutlet></ng-container>
+        </ul>
+      </li>
+    </mat-nested-tree-node>
+  </mat-tree>
+</ul>

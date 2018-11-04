@@ -1,0 +1,10 @@
+<section class="mat-typography" style="width: 100%">
+  <h1 mat-dialog-title>Delete project</h1>
+  <div mat-dialog-content style="width: 100%">
+    Are you sure you want to delete {{data.name}}?
+  </div>
+  <div mat-dialog-actions style="width: 100%; display: flex; justify-content: space-between;">
+    <button mat-button (click)="onNoClick()">Cancel</button>
+    <button mat-raised-button color="accent" [mat-dialog-close]="data.name" cdkFocusInitial>Delete</button>
+  </div>
+</section>

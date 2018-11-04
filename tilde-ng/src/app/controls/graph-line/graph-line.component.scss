@@ -1,0 +1,56 @@
+%line-shared {
+  stroke-linejoin:round;
+  fill: none;
+  stroke-width: 4px;
+  stroke-linecap: round;
+}
+
+.white {
+  @extend %line-shared;
+  stroke:#FFFFFF;
+}
+
+.red {
+  @extend %line-shared;
+  stroke: #ff3738;
+}
+
+.orange {
+  @extend %line-shared;
+  stroke: #ffac4d;
+}
+
+.yellow {
+  @extend %line-shared;
+  stroke: #fffe4a;
+}
+
+.green {
+  @extend %line-shared;
+  stroke: #69ff47;
+}
+
+.cyan {
+  @extend %line-shared;
+  stroke: #48ffc8;
+}
+
+.blue {
+  @extend %line-shared;
+  stroke: #4f95ff;
+}
+
+.purple {
+  @extend %line-shared;
+  stroke: #ac3fff;
+}
+
+.magenta {
+  @extend %line-shared;
+  stroke: #ff48ff;
+}
+
+.pink {
+  @extend %line-shared;
+  stroke: #ff56ab;
+}

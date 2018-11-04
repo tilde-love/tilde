@@ -1,0 +1,23 @@
+@import '../../node_modules/@angular/material/theming';
+
+// always include only once per project
+@include mat-core();
+
+@import './app-theme';
+
+html,
+body {
+  height: 100%;
+  margin: 0
+}
+
+.box {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.box .row {
+  border: 1px dotted grey;
+}
+

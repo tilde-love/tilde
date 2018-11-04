@@ -1,0 +1,41 @@
+.flex-container {
+  flex: 1 1 auto; height: 100%; display: flex;
+}
+
+.app-toolbar {
+  position: sticky;
+  position: -webkit-sticky; /* For macOS/iOS Safari */
+  top: 0; /* Sets the sticky toolbar to be on top */
+  z-index: 1000; /* Ensure that your app's content doesn't overlap the toolbar */
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: space-between;
+  align-items: center;
+  //flex-wrap: wrap;
+}
+
+.holder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+//@media screen and (max-width: 340px) {
+//  .showOver340 { display: none; }
+//}
+
+.hideOverTiny { display: none; }
+.showOverTiny { display: flex; }
+
+@media screen and (max-width: 512px) {
+  .hideOverTiny { display: flex; }
+  .showOverTiny { display: none; }
+}
+
+/*router-outlet + app-project-view {*/
+  /*display: flex; height: 100%;*/
+/*}*/
+
+/*.mat-drawer{*/
+  /*background-color: transparent !important;*/
+/*}*/

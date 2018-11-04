@@ -1,0 +1,37 @@
+<section>
+  <!-- script editor -->
+  <button mat-icon-button class="showOver340" [routerLink]="['/projects/', this.currentProject]"
+          [matTooltip]="'Edit project ' + this.currentProject" matTooltipPosition="below" matTooltipShowDelay="500"
+  >
+    <mat-icon>edit</mat-icon>
+  </button>
+
+  <button mat-icon-button routerLink="/"
+          [matTooltip]="this.currentProject + ' controls'" matTooltipPosition="below" matTooltipShowDelay="500"
+  >
+    <mat-icon>tune</mat-icon>
+  </button>
+
+  <!--&lt;!&ndash; download project &ndash;&gt;-->
+  <!--<button mat-icon-button-->
+          <!--[matTooltip]="'Download project ' + this.currentProject" matTooltipPosition="below" matTooltipShowDelay="500"-->
+  <!--&gt;-->
+    <!--<mat-icon>get_app</mat-icon>-->
+  <!--</button>-->
+
+  <button mat-icon-button routerLink="/projects"
+          matTooltip="Select a project" matTooltipPosition="below" matTooltipShowDelay="500"
+  >
+    <mat-icon>folder</mat-icon>
+  </button>
+
+  <!--&lt;!&ndash; create project (inc upload dropper) dialog &ndash;&gt;-->
+  <!--<button mat-icon-button routerLink="/create"-->
+          <!--matTooltip="Add a project" matTooltipPosition="below" matTooltipShowDelay="500"-->
+  <!--&gt;-->
+    <!--<mat-icon>create_new_folder</mat-icon>-->
+  <!--</button>-->
+
+  <!--<button mat-button routerLink="/projects/test">Test</button>-->
+  <!--<button mat-button routerLink="/profile">Profile</button>-->
+</section>

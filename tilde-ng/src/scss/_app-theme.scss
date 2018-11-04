@@ -1,0 +1,93 @@
+//// define 3 theme color
+//// mat-palette accepts $palette-name, main, lighter and darker variants
+//$my-theme-primary: mat-palette($mat-indigo, 700, 300, 900);
+//$my-theme-accent: mat-palette($mat-light-blue);
+//$my-theme-warn: mat-palette($mat-deep-orange, A200);
+//
+//// create theme (use mat-dark-theme for themes with dark backgrounds)
+//$my-theme: mat-light-theme(
+//    $my-theme-primary,
+//    $my-theme-accent,
+//    $my-theme-warn
+//);
+
+.app-dark-theme {
+  $app-primary: mat-palette($mat-grey, 900, 500, 50);
+  $app-accent:  mat-palette($mat-teal, 400);
+  $app-warn:    mat-palette($mat-red);
+
+  $primary-color: mat-color($app-primary);
+  $accent-color: mat-color($app-accent);
+
+  // Create the theme object (a Sass map containing all of the palettes).
+  $app-theme: mat-dark-theme($app-primary, $app-accent, $app-warn);
+
+  @include angular-material-theme($app-theme);
+
+  .scroller::-webkit-scrollbar {
+    width: 8px;
+  }
+  .scroller::-webkit-scrollbar-thumb {
+    background-color: $primary-color;
+  }
+  //
+  //.box::-webkit-scrollbar {
+  //  //background-color: mat-color($app-primary, 500);
+  //  border-style: none;
+  //}
+  //.box::-webkit-scrollbar-thumb {
+  //  background-color: mat-color($app-primary, 50);
+  //  border: 1px solid mat-color($app-primary, 50);
+  //}
+
+  .editor-scroller::-webkit-scrollbar {
+    //background-color: mat-color($app-primary, 500);
+    width: 8px;
+    border-style: none;
+  }
+  .editor-scroller::-webkit-scrollbar-thumb {
+    background-color: mat-color($app-primary, 50);
+    border: 1px solid mat-color($app-primary, 50);
+  }
+}
+
+.app-light-theme {
+  $app-primary: mat-palette($mat-grey, 900);
+  $app-accent:  mat-palette($mat-cyan);
+  $app-warn:    mat-palette($mat-red);
+
+  $primary-color: mat-color($app-primary);
+  $accent-color: mat-color($app-accent);
+
+  // Create the theme object (a Sass map containing all of the palettes).
+  $app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
+
+  @include angular-material-theme($app-theme);
+
+  .scroller::-webkit-scrollbar {
+    width: 8px;
+  }
+  .scroller::-webkit-scrollbar-thumb {
+    background-color: $primary-color;
+  }
+  //
+  //.box::-webkit-scrollbar {
+  //  //background-color: mat-color($app-primary, 500);
+  //  border-style: none;
+  //}
+  //.box::-webkit-scrollbar-thumb {
+  //  background-color: mat-color($app-primary, 400);
+  //  border: 1px solid mat-color($app-primary, 400);
+  //}
+
+  .editor-scroller::-webkit-scrollbar {
+    width: 8px;
+    //background-color: mat-color($app-primary, 500);
+    border-style: none;
+  }
+  .editor-scroller::-webkit-scrollbar-thumb {
+    background-color: mat-color($app-primary, 400);
+    border: 1px solid mat-color($app-primary, 400);
+  }
+}
+

@@ -1,0 +1,34 @@
+<section>
+  <!--&lt;!&ndash; add new project from upload &ndash;&gt;-->
+  <!--<button mat-icon-button>-->
+  <!--<mat-icon>cloud_circle</mat-icon>-->
+  <!--</button>-->
+
+  <!-- project list -->
+
+  <!-- profile -->
+  <button mat-icon-button routerLink="/"
+          matTooltip="Documentation" matTooltipPosition="below" matTooltipShowDelay="500"
+  >
+    <mat-icon>help</mat-icon>
+  </button>
+
+  <!-- profile -->
+  <button mat-icon-button routerLink="/profile"
+          matTooltip="Profiling" matTooltipPosition="below" matTooltipShowDelay="500"
+  >
+    <mat-icon>pie_chart</mat-icon>
+  </button>
+
+  <!-- project settings  -->
+  <button mat-icon-button [routerLink]="'/settings'"
+  matTooltip="Host settings" matTooltipPosition="below" matTooltipShowDelay="500"
+  >
+  <mat-icon>settings</mat-icon>
+  </button>
+
+
+  <!--<button mat-icon-button>-->
+  <!--<mat-icon>account_circle</mat-icon>-->
+  <!--</button>-->
+</section>

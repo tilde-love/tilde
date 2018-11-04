@@ -1,0 +1,28 @@
+<div class="holder"
+     appDropzone
+     (filesChangeEmiter)="onFilesChange($event)"
+     [allowExtensions]="['zip', 'md', 'txt', 'ts', 'js', 'json']"
+  >
+  <mat-toolbar class="app-toolbar showOverTiny" color="primary">
+
+    <app-project-buttons></app-project-buttons>
+
+    <app-transport-buttons></app-transport-buttons>
+
+    <app-host-buttons></app-host-buttons>
+  </mat-toolbar>
+
+  <mat-toolbar class="app-toolbar hideOverTiny" color="primary">
+    <mat-toolbar-row class="app-toolbar">
+      <app-project-buttons></app-project-buttons>
+
+      <app-host-buttons></app-host-buttons>
+    </mat-toolbar-row>
+
+    <mat-toolbar-row class="app-toolbar" style="align-items: stretch;">
+      <app-transport-buttons style="width: 100%; text-align: center"></app-transport-buttons>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <router-outlet></router-outlet>
+</div>

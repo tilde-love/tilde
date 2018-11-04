@@ -1,0 +1,93 @@
+<div *ngIf="(projectItemType | async) != ProjectItemType.ProjectNotFound" class="project-container">
+  <mat-toolbar>
+    <mat-toolbar-row style="display: flex; width: 100%; justify-content: space-between; overflow-x: hidden">
+      <!--align-items: center;-->
+      <section style="overflow-x: hidden;">
+        <button mat-icon-button class="menu-toggle" (click)="sidenav.toggle()"
+                matTooltip="Project structure" matTooltipPosition="below" matTooltipShowDelay="500">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <!--<mat-form-field class="invisibleOnTiny" style="font-size: 14px; width: 1024px">-->
+          <!--<input matInput [(ngModel)]="activePath">-->
+        <!--</mat-form-field> font-size: 14px; -->
+
+        <span class="invisibleOnTiny" style="overflow-x: hidden; display: inline-block; vertical-align: middle">
+          {{activePath}}
+        </span>
+      </section>
+      <section>
+        <button (click)="reloadFile()" mat-icon-button matTooltip="Reload file" matTooltipPosition="below" matTooltipShowDelay="500">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button (click)="writeFile()" mat-icon-button matTooltip="Upload file" matTooltipPosition="below" matTooltipShowDelay="500">
+          <mat-icon>publish</mat-icon>
+        </button>
+        <a [href]="getFileUrl()" mat-icon-button matTooltip="Dowload file" matTooltipPosition="below" matTooltipShowDelay="500">
+          <mat-icon>get_app</mat-icon>
+        </a>
+        <button  (click)="openCreateFileDialog()" mat-icon-button matTooltip="New file" matTooltipPosition="below" matTooltipShowDelay="500">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+        <button (click)="openDuplicateFileDialog()" mat-icon-button matTooltip="Duplicate file" matTooltipPosition="below" matTooltipShowDelay="500">
+          <mat-icon>control_point_duplicate</mat-icon>
+        </button>
+        <button (click)="openDeleteFileDialog()" mat-icon-button matTooltip="Delete file" matTooltipPosition="below" matTooltipShowDelay="500">
+          <mat-icon>delete_forever</mat-icon>
+        </button>
+      </section>
+    </mat-toolbar-row>
+
+    <!--class="displayOnTiny"-->
+    <mat-toolbar-row class="displayOnTiny">
+      <section style="overflow-x: hidden; margin-left: 10px; margin-right: 10px">
+        <span style="overflow-x: hidden">{{activePath}}</span>
+        <!--<mat-form-field style="font-size: 14px; width: 4096px">-->
+          <!--<input matInput [(ngModel)]="activePath">-->
+        <!--</mat-form-field>-->
+      </section>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+
+
+  <mat-drawer-container class="flex-container">
+    <mat-drawer #sidenav class="flex-container scroller sidenav"
+                [mode]="mobileQuery.matches ? 'side' : 'over'"
+                [(opened)]="isSideNavOpen"
+                >
+      <app-project-tree [(project)]="project" [(active)]="activePath"></app-project-tree>
+    </mat-drawer>
+
+    <mat-drawer-content class="flex-container editor-scroller">
+      <app-script-editor *ngIf="isDocument" class="flex-container"
+                         (textChanged)="textChanged($event)"
+                         [mode]="mode"
+                         [(text)]="text"
+                         [(readonly)]="readonly"
+                         [(errors)]="errors"
+                          >
+      </app-script-editor>
+
+      <div *ngIf="!isDocument && (projectItemType | async) == ProjectItemType.Cover" class="mat-typography" style="padding: 20px">
+        <showdown [value]="text"></showdown>
+      </div>
+
+      <div *ngIf="!isDocument && (projectItemType | async) == ProjectItemType.Settings" class="project-container mat-typography center-fill">
+        <app-project-settings></app-project-settings>
+      </div>
+
+      <div *ngIf="!isDocument && (projectItemType | async) == ProjectItemType.FileNotFound" class="project-container mat-typography center-fill">
+        <h2>File not found</h2>
+      </div>
+
+      <div *ngIf="!isDocument && (projectItemType | async) == ProjectItemType.Loading" class="project-container mat-typography center-fill">
+        <mat-spinner color="accent"></mat-spinner>
+      </div>
+    </mat-drawer-content>
+
+  </mat-drawer-container>
+</div>
+<div *ngIf="(projectItemType | async) == ProjectItemType.ProjectNotFound" class="project-container mat-typography"
+     style="display: flex; width: 100%; height: 100%; justify-content: space-around; align-items: center;">
+  <h2>Project not found</h2>
+</div>
