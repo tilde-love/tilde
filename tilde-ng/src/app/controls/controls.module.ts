@@ -3,12 +3,19 @@ import { CommonModule } from '@angular/common';
 import { GraphComponent } from './graph/graph.component';
 import { GraphLineComponent } from './graph-line/graph-line.component';
 import { ControlComponent } from './control/control.component';
+import { PanelComponent } from './panel/panel.component';
+import {AppMaterialModule} from '../app-material.module';
+import {ShowdownModule} from 'ngx-showdown';
+import {FormsModule} from '@angular/forms';
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    AppMaterialModule,
+    ShowdownModule,
+    FormsModule
   ],
-  exports: [GraphComponent],
-  declarations: [GraphComponent, GraphLineComponent, ControlComponent]
+  exports: [PanelComponent],
+  declarations: [GraphComponent, GraphLineComponent, ControlComponent, PanelComponent]
 })
 export class ControlsModule { }

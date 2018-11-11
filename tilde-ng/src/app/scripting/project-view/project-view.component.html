@@ -76,6 +76,10 @@
         <app-project-settings></app-project-settings>
       </div>
 
+      <div *ngIf="!isDocument && (projectItemType | async) == ProjectItemType.Panel" class="mat-typography" style="width: 100%;">
+        <app-panel [project]="project | async" [panel]="controlPanel"></app-panel>
+      </div>
+
       <div *ngIf="!isDocument && (projectItemType | async) == ProjectItemType.FileNotFound" class="project-container mat-typography center-fill">
         <h2>File not found</h2>
       </div>

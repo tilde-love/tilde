@@ -1,0 +1,11 @@
+Microsoft (R) Build Engine version 15.8.169+g1ccb72aefa for .NET Core
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+  Restore completed in 47.72 ms for D:\code\tilde-love\tilde\projects\test\test.csproj.
+  test -> D:\code\tilde-love\tilde\projects\test\bin\test.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.02

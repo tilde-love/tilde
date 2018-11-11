@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tilde.Host</name>
+    </assembly>
+    <members>
+        <member name="M:Tilde.Host.Hubs.Client.ClientHub.OnConnectedAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Host.Hubs.Client.ClientHub.OnDisconnectedAsync(System.Exception)">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Host.Hubs.Client.ClientService.StartAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Host.Hubs.Client.ClientService.StopAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Host.Hubs.Module.ModuleHub.OnConnectedAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Host.Hubs.Module.ModuleHub.OnDisconnectedAsync(System.Exception)">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Host.Hubs.Module.ModuleService.StartAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Host.Hubs.Module.ModuleService.StopAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

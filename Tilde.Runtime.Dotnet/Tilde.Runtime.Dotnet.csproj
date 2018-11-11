@@ -1,0 +1,76 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <VersionBase>1.0.0</VersionBase>
+        <LangVersion>7.1</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
+        <IncludeSymbols>true</IncludeSymbols>
+        <VersionSuffix>-debug-$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</VersionSuffix>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+        <IncludeSymbols>false</IncludeSymbols>
+        <VersionSuffix />
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Version>$(VersionBase)$(VersionSuffix)</Version>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageId>$(AssemblyName)</PackageId>
+        <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+        <PackageOutputPath>../../.package-store</PackageOutputPath>
+        <Company>Tilde Love Project</Company>
+        <PackageProjectUrl>http://tilde.love</PackageProjectUrl>
+        <Authors>Phill Tew</Authors>
+        <Copyright>Copyright (c) Tilde Love Project. All rights reserved.</Copyright>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Title>Tilde Runtime for Dotnet</Title>
+        <Description>Tilde Runtime for Dotnet</Description>
+        <RepositoryUrl>https://github.com/tilde-love/tilde-runtime-dotnet</RepositoryUrl>
+        <PackageTags>tilde</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Tilde.Core\Tilde.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Tilde.Runtime.Dotnet.xml" />
+    </ItemGroup>
+
+
+
+    <!--<PropertyGroup>-->
+        <!--<TargetFramework>netstandard2.0</TargetFramework>-->
+        <!--<Version>1.0.0</Version>-->
+        <!--<PackageId>Tilde.Runtime.Dotnet</PackageId>-->
+        <!--<Title>Tilde Runtime for Dotnet</Title>-->
+        <!--<Description>Tilde Runtime for Dotnet</Description>-->
+        <!--<Authors>Phill Tew</Authors>-->
+        <!--<Copyright>Copyright (c) Tilde Love Project. All rights reserved.</Copyright>-->
+        <!--<Company>Tilde Love Project</Company>-->
+        <!--<PackageProjectUrl>http://tilde.love</PackageProjectUrl>-->
+        <!--<RepositoryUrl>https://github.com/tilde-love/tilde-runtime-dotnet</RepositoryUrl>-->
+        <!--<PackageTags>tilde; dotnet</PackageTags>-->
+        <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+        <!--<PackageOutputPath>../../.package-store</PackageOutputPath>-->
+        <!--<IncludeSymbols>true</IncludeSymbols>-->
+    <!--</PropertyGroup>-->
+
+    <!--<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">-->
+      <!--<DocumentationFile>bin\Debug\netstandard2.0\Tilde.Runtime.Dotnet.xml</DocumentationFile>-->
+    <!--</PropertyGroup>-->
+
+    <!--<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">-->
+      <!--<DocumentationFile>bin\Release\netstandard2.0\Tilde.Runtime.Dotnet.xml</DocumentationFile>-->
+    <!--</PropertyGroup>-->
+    
+</Project>

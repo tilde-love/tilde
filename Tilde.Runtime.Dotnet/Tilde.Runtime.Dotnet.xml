@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tilde.Runtime.Dotnet</name>
+    </assembly>
+    <members>
+        <member name="M:Tilde.Runtime.Dotnet.DotnetRuntime.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="P:Tilde.Runtime.Dotnet.DotnetRuntime.Project">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Runtime.Dotnet.DotnetRuntime.Load(Tilde.Core.Projects.Project)">
+            <inheritdoc />
+        </member>
+        <member name="E:Tilde.Runtime.Dotnet.DotnetRuntime.ProjectChanged">
+            <inheritdoc />
+        </member>
+        <member name="P:Tilde.Runtime.Dotnet.DotnetRuntime.State">
+            <inheritdoc />
+        </member>
+        <member name="E:Tilde.Runtime.Dotnet.DotnetRuntime.StateChanged">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,8 @@
+<div *ngIf="panel !== undefined" class="grid-container mat-typography project-list">
+  <!--style="display: flex"-->
+  <app-control *ngFor="let control of panel.controls"
+               [project]="project"
+               [controls]="panel"
+               [control]="control"
+               [class]="GetSizeClass(control.size)"></app-control>
+</div>

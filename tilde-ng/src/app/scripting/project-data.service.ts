@@ -8,54 +8,7 @@ import { environment } from '../../environments/environment';
 import { HubConnection } from '@aspnet/signalr';
 import * as signalR from '@aspnet/signalr';
 import {forEach} from '@angular/router/src/utils/collection';
-
-export class ErrorSpan {
-  public sl: number;
-  public sc: number;
-  public el: number;
-  public ec: number;
-}
-
-export class Error {
-  public type: string;
-  public text: string;
-  public span: ErrorSpan;
-}
-
-export class Project {
-  public uri: string;
-  public deleted: boolean;
-  public files: string[]; // { [name: string]: string };
-  public errors: { [ uri: string]: Error[] } = {};
-}
-
-export enum ScriptHostState {
-  Running = 0,
-  Stopped,
-  Paused,
-}
-
-export class Runtime {
-  public state: ScriptHostState;
-  public isInError: boolean;
-  public project: string;
-}
-
-export enum EditorState {
-  NotCached = 0,
-  NotFound,
-  Cached,
-  Edited,
-  Superseded,
-}
-
-export class EditorItem {
-  public state: EditorState;
-  public uri: string;
-  public mimeType: string;
-  public original: string;
-  public edited: string;
-}
+import {ControlEvent, ControlPanel, DataSource, EditorItem, EditorState, Project, Runtime, ScriptHostState} from './project-types';
 
 @Injectable({
   providedIn: 'root'
@@ -72,6 +25,7 @@ export class ProjectDataService implements OnDestroy {
     );
   private _hubConnection: HubConnection;
   private _darkTheme: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(localStorage.getItem('dark-theme') !== 'false');
+  private _controlEvents: { [ uri: string ]: { count: number, subject: BehaviorSubject<ControlEvent> } } = {};
 
   static getProjectTreeState(project: Project) {
     const value = localStorage.getItem(`TreeState:${project.uri}`);
@@ -126,35 +80,104 @@ export class ProjectDataService implements OnDestroy {
 
     this._hubConnection.on('OnStateChange', (data: any) => {
       const received = `OnStateChange: ${data}`;
-
       console.log(received);
     });
 
-    // this._hubConnection.on('OnErrorMessage', (data: any) => {
-    //   const received = `OnErrorMessage: ${data}`;
-    //
-    //   console.log(received);
-    //   // this.messages.push(received);
-    // });
-
-    this._hubConnection.on('OnScriptProject', (project: Project) => {
+    this._hubConnection.on('OnProject', (project: Project) => {
       const projects = this._projects.getValue();
-
       projects[project.uri] = project;
-
       this._projects.next(projects);
     });
 
-    // this._hubConnection.on('OnIsInError', (data: any) => {
-    //   const received = `OnIsInError: ${data}`;
-    //   console.log(received);
-    // });
+    this._hubConnection.on('OnProjects', (projects: string[]) => {
+      this._projectUris.next(projects);
+    });
+
+    this._hubConnection.on('OnControlPanel', (project: string, panelUri: string, panel: ControlPanel) => {
+      // this._projectUris.next(projects);
+      // console.log(`OnControlPanel (project: ${project}, panelUri: ${panelUri})`);
+      // console.log(JSON.stringify(panel));
+
+      const proj = this._projects.getValue()[project];
+
+      if (isNullOrUndefined(proj) === true) {
+        return;
+      }
+
+      proj.controls.panels[panelUri] = panel;
+    });
+
+    this._hubConnection.on('OnControlValue', (project: string, control: string, value: any) => {
+      // this._projectUris.next(projects);
+      // console.log(`OnControlValue (project: ${project}, control: ${control})`);
+      // console.log(JSON.stringify(value));
+      const uri = `${project}/${control}`;
+      const event = this._controlEvents[uri];
+
+      if (isNullOrUndefined(event)) {
+        return;
+      }
+
+      // console.log(`OnControlValue (project: ${project}, control: ${control})`);
+
+      event.subject.next({project: project, control: control, value: value });
+    });
+
+    this._hubConnection.on('OnDataSource', (project: string, uri: string, dataSource: DataSource) => {
+      // this._projectUris.next(projects);
+      console.log(`OnDataSource (project: ${project}, uri: ${uri})`);
+      console.log(JSON.stringify(dataSource));
+
+      const proj = this._projects.getValue()[project];
+
+      if (isNullOrUndefined(proj) === true) {
+        return;
+      }
+
+      proj.controls.sources[uri] = dataSource;
+    });
 
     this._hubConnection.onclose((e) => setTimeout(this.startHubConnection(), 5000) );
 
     this.startHubConnection();
 
     // this.setTheme(localStorage.getItem('dark-theme') !== 'false');
+  }
+
+  public updateControl(project: string, control: string, value: any) {
+    this._hubConnection
+      .invoke('UpdateValue', project, control, value)
+      .catch(err => console.error(err));
+  }
+
+  public attachControlEvent(project: string, control: string): BehaviorSubject<ControlEvent> {
+    const uri = `${project}/${control}`;
+
+    let event = this._controlEvents[uri];
+
+    if (isNullOrUndefined(event)) {
+      event = { count: 0, subject: new BehaviorSubject<ControlEvent>(null) };
+      this._controlEvents[uri] = event;
+    }
+
+    event.count++;
+
+    return event.subject;
+  }
+
+  public detachControlEvent(project: string, control: string) {
+    const uri = `${project}/${control}`;
+    const event = this._controlEvents[uri];
+
+    if (isNullOrUndefined(event)) {
+      return;
+    }
+
+    event.count--;
+
+    if (event.count === 0) {
+      this._controlEvents[uri] = null;
+    }
   }
 
   public setTheme(dark: boolean) {

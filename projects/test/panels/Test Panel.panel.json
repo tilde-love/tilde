@@ -1,0 +1,182 @@
+[
+    {
+        "source": "bool1", 
+        "type": "Toggle", 
+        "size": "Half",
+        "label": "First control"
+    },
+    {
+        "source": "int1", 
+        "type": "Slider", 
+        "size": "Half",
+        "label": "This is the label"
+    },
+        {
+        "type": "Break", 
+        "size": "Full",
+    },
+    {
+        "source": "int1", 
+        "type": "Slider", 
+        "size": "Half",
+        "label": "This is the label"
+    },
+    {
+        "source": "string1", 
+        "type": "Value", 
+        "size": "Half",
+        "label": "This is the label"
+    },
+    {
+        "source": "bool1", 
+        "type": "Checkbox", 
+        "size": "Quarter"
+    },
+    {
+        "source": "bool1", 
+        "type": "RadioButton", 
+        "size": "Quarter"
+    },
+    {
+        "source": "string1", 
+        "type": "SelectBox", 
+        "size": "Quarter",
+        "label": "First control"
+    },
+    {
+        "type": "Break", 
+        "size": "Full",
+    },
+    {
+        "source": "float1", 
+        "type": "Slider", 
+        "size": "Half",
+        "label": "This is the label"
+    },
+    {
+        "source": "float1", 
+        "type": "Slider", 
+        "size": "Half",
+        "label": "This is the label"
+    },
+    {
+        "source": "moop2", 
+        "type": "Chips", 
+        "size": "Quarter",
+        "label": "This is the label"
+    },
+    {
+        "label": "String test 1",
+        "source": "string1", 
+        "type": "TextBox", 
+        "size": "Half"
+    },
+    {
+        "label": "String test 2",
+        "source": "string1", 
+        "type": "Value", 
+        "size": "Half"
+    },
+    {
+        "source": "moop3", 
+        "type": "Value", 
+        "size": "Full"
+    },
+    {
+        "source": "moop1", 
+        "type": "Graph", 
+        "size": "Full",
+        "label": "First control"
+    },
+    {
+        "source": "moop2", 
+        "type": "Color", 
+        "size": "Full",
+        "label": "This is the label"
+    },
+    {
+        "source": "moop3", 
+        "type": "Image", 
+        "size": "Full"
+    },
+    {
+        "source": "moop3", 
+        "type": "Toggle", 
+        "size": "Full"
+    },
+    {
+        "source": "moop1", 
+        "type": "Markdown", 
+        "size": "Full",
+        "label": "First control"
+    },
+    {
+        "source": "moop2", 
+        "type": "Slider", 
+        "size": "Full",
+        "label": "This is the label"
+    },
+    {
+        "source": "moop3", 
+        "type": "Toggle", 
+        "size": "Full"
+    },
+    {
+        "source": "moop3", 
+        "type": "Toggle", 
+        "size": "Full"
+    },
+    {
+        "source": "moop1", 
+        "type": "Toggle", 
+        "size": "Full",
+        "label": "First control"
+    },
+    {
+        "source": "moop2", 
+        "type": "Slider", 
+        "size": "Full",
+        "label": "This is the label"
+    },
+    {
+        "type": "Break", 
+        "size": "Half",
+    },
+    {
+        "source": "moop3", 
+        "type": "Toggle", 
+        "size": "Half"
+    },
+    {
+        "source": "moop3", 
+        "type": "Toggle", 
+        "size": "Half"
+    },
+    {
+        "type": "Break", 
+        "size": "Half",
+    },
+    {
+        "source": "moop1", 
+        "type": "Toggle", 
+        "size": "Full",
+        "label": "First control"
+    },
+    {
+        "source": "moop2", 
+        "type": "Slider", 
+        "size": "Full",
+        "label": "This is the label"
+    },
+    {
+        "source": "moop3", 
+        "type": "Toggle", 
+        "size": "Full"
+    },
+    {
+        "source": "moop3", 
+        "type": "Toggle", 
+        "size": "Full"
+    }
+    
+]

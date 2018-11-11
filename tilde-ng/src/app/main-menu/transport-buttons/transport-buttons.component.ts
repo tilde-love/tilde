@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Project, ProjectDataService} from '../../scripting/project-data.service';
+import {ProjectDataService} from '../../scripting/project-data.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 

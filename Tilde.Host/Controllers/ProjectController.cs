@@ -11,16 +11,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Tilde.Core;
 using Tilde.Core.Projects;
+using Tilde.Host.Hubs;
+using Tilde.Host.Hubs.Client;
 
 namespace Tilde.Host.Controllers
 {
     [Route("api/1.0")]
     public class ProjectsController : Controller
     {
-        private readonly IHubContext<NotifyHub, INotifyClient> hubContext;
+        private readonly IHubContext<ClientHub, IClient> hubContext;
         private readonly ProjectManager projectManager;
 
-        public ProjectsController(ProjectManager projectManager, IHubContext<NotifyHub, INotifyClient> hubContext)
+        public ProjectsController(ProjectManager projectManager, IHubContext<ClientHub, IClient> hubContext)
         {
             this.projectManager = projectManager;
             this.hubContext = hubContext;

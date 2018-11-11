@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from './app-material.module';
 import { ScriptingModule } from './scripting/scripting.module';
@@ -12,7 +12,7 @@ import {
   MatCardModule,
   MatMenuModule,
   MatIconModule,
-  MatButtonModule, MatToolbarModule, MatSidenavModule, MatListModule
+  MatButtonModule, MatToolbarModule, MatSidenavModule, MatListModule, GestureConfig
 } from '@angular/material';
 import { TransportButtonsComponent } from './main-menu/transport-buttons/transport-buttons.component';
 import { ProjectButtonsComponent } from './main-menu/project-buttons/project-buttons.component';
@@ -56,7 +56,7 @@ import {CreateProjectDialogComponent, DeleteProjectDialogComponent} from './scri
     MatListModule,
     ShowdownModule,
   ],
-  providers: [ ProjectDataService ],
+  providers: [ ProjectDataService, { provide: HAMMER_GESTURE_CONFIG, useClass: GestureConfig }, ],
   bootstrap: [ AppComponent ],
   entryComponents: [
     CreateFileDialogComponent,

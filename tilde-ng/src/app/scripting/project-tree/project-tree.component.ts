@@ -1,14 +1,21 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Subscription, BehaviorSubject, from, of as observableOf} from 'rxjs';
 import { NestedTreeControl } from '@angular/cdk/tree';
-import {Project, ProjectDataService} from '../project-data.service';
+import {ProjectDataService} from '../project-data.service';
+import {Project} from '../project-types';
+
+export enum FileType {
+  File = 0,
+  Folder,
+  Partial,
+}
 
 export class FileNode {
   public children: { [ name: string]: FileNode } = {};
   public filename: string;
   public uri: any;
   public isOpen: boolean;
-  public isFile: boolean;
+  public fileType: FileType;
   public icon: string;
   public color: string;
 }
@@ -19,6 +26,8 @@ export class FileNode {
   styleUrls: ['./project-tree.component.scss'],
 })
 export class ProjectTreeComponent implements OnInit, OnDestroy {
+
+  fileType = FileType;
 
   @Input('project') project: BehaviorSubject<Project>;
   @Input('active') activePath: string;
@@ -63,7 +72,7 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
       uri = `/projects/${project.uri}/readme`;
       const readme: FileNode = {
         isOpen: this.treeState[uri],
-        filename: 'readme', isFile: true, uri: uri, icon: 'insert_drive_file',
+        filename: 'readme', fileType: FileType.File, uri: uri, icon: 'insert_drive_file',
         color: '',
         children: {}
       };
@@ -71,7 +80,7 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
       uri = `/projects/${project.uri}/log`;
       const log: FileNode = {
         isOpen: this.treeState[uri],
-        filename: 'log', isFile: true, uri: uri, icon: 'receipt',
+        filename: 'log', fileType: FileType.File, uri: uri, icon: 'receipt',
         color: '',
         children: {}
       };
@@ -79,7 +88,7 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
       uri = `/projects/${project.uri}/build`;
       const build: FileNode = {
         isOpen: this.treeState[uri],
-        filename: 'build', isFile: true, uri: uri, icon: 'feedback',
+        filename: 'build', fileType: FileType.File, uri: uri, icon: 'feedback',
         color: '',
         children: {}
       };
@@ -87,7 +96,7 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
       uri = `/projects/${project.uri}/settings`;
       const settings: FileNode = {
         isOpen: this.treeState[uri],
-        filename: 'settings', isFile: true, uri: uri, icon: 'settings',
+        filename: 'settings', fileType: FileType.File, uri: uri, icon: 'settings',
         color: '',
         children: {}
       };
@@ -114,7 +123,7 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
     const root: FileNode = {
       isOpen: false,
       filename: 'ROOT',
-      isFile: false,
+      fileType: FileType.Folder,
       uri: baseUri,
       icon: 'ROOT',
       color: '',
@@ -134,7 +143,7 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
           match = {
             isOpen: this.treeState[uri],
             filename: segment,
-            isFile: false,
+            fileType: FileType.Folder,
             uri: uri,
             icon: '',
             color: '',
@@ -158,15 +167,42 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
       const filename: string = path[path.length - 1];
       const uri = `${parent.uri}/${filename}`;
 
-      parent.children[filename] = {
-        isOpen: this.treeState[uri],
-        filename: filename,
-        isFile: true,
-        uri: uri,
-        icon: 'insert_drive_file',
-        color: 'accent',
-        children: {}
-      };
+      if (filename.endsWith('.panel.json')) {
+        const panelFilename = filename.substring(0, filename.length - '.json'.length);
+        const panelUri = `${parent.uri}/${panelFilename}`;
+
+        const partial = {
+          isOpen: this.treeState[panelUri],
+          filename: panelFilename,
+          fileType: FileType.Partial,
+          uri: panelUri,
+          icon: 'tune',
+          color: '',
+          children: {}
+        };
+        partial.children[filename] = {
+          isOpen: this.treeState[uri],
+          filename: filename,
+          fileType: FileType.File,
+          uri: uri,
+          icon: 'insert_drive_file',
+          color: 'accent',
+          children: {}
+        };
+
+        parent.children[panelFilename] = partial;
+
+      } else {
+        parent.children[filename] = {
+          isOpen: this.treeState[uri],
+          filename: filename,
+          fileType: FileType.File,
+          uri: uri,
+          icon: 'insert_drive_file',
+          color: 'accent',
+          children: {}
+        };
+      }
     }
 
     return Object.values(root.children);

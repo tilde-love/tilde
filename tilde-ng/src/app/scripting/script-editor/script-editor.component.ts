@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {AceEditorComponent} from 'ng2-ace-editor';
-import {Error, ProjectDataService} from '../project-data.service';
+import {ProjectDataService} from '../project-data.service';
+import { Error } from '../project-types';
 import {Subscription} from 'rxjs';
 // import {Ace} from 'ace-builds';
 // import Point = Ace.Point;

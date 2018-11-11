@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tilde.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Tilde.Core.Controls.Control">
+            <summary>
+            Definition of a control
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.Control.DataSource">
+            <summary>
+            Uri of the data source
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.Control.ControlType">
+            <summary>
+            Control type
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.Control.Size">
+            <summary>
+            Layout
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.Control.Label">
+            <summary>
+            Label
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.Control.NumericRange">
+            <summary>
+            Numerical value range
+            </summary>
+        </member>
+        <member name="M:Tilde.Core.Controls.ControlGroup.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:Tilde.Core.Controls.ControlType">
+            <summary>
+            Control types
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.ControlType.Toggle">
+            <summary>
+            Toggle 
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.ControlType.Checkbox">
+            <summary>
+            Checkbox or checkbox group
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.ControlType.RadioButton">
+            <summary>
+            Radio button group 
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.ControlType.SelectBox">
+            <summary>
+            Drop down select box
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.ControlType.Chips">
+            <summary>
+            Chips selector 
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.ControlType.TextBox">
+            <summary>
+            Text box
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.ControlType.Value">
+            <summary>
+            Value as a string
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.ControlType.Slider">
+            <summary>
+            Value slider
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSource.NumericRange">
+            <summary>
+            Numerical value range
+            </summary>
+        </member>
+        <member name="T:Tilde.Core.Controls.DataSourceType">
+            <summary>
+            Data types for data sources.
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.Boolean">
+            <summary>
+            Boolean
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.Enum">
+            <summary>
+            Enumeration
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.String">
+            <summary>
+            String 
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.Float">
+            <summary>
+            Floating point number
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.FloatArray">
+            <summary>
+            Array of floating point numbers
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.Integer">
+            <summary>
+            Integer
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.IntegerArray">
+            <summary>
+            Array of integers
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.Color">
+            <summary>
+            Color 
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.Image">
+            <summary>
+            Image
+            </summary>
+        </member>
+        <member name="F:Tilde.Core.Controls.DataSourceType.Any">
+            <summary>
+            Unknown type 
+            </summary>
+        </member>
+        <member name="M:Tilde.Core.Projects.AggregatedListDebouncer`1.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Core.Projects.Error.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Core.Projects.Error.CompareTo(Tilde.Core.Projects.Error)">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Core.Projects.ErrorSpan.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Core.Projects.ErrorSpan.CompareTo(Tilde.Core.Projects.ErrorSpan)">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Core.Projects.EventDebouncer.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Core.Projects.Project.CompareTo(Tilde.Core.Projects.Project)">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Core.Projects.Project.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Core.Projects.ProjectLog.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="M:Tilde.Core.Projects.ProjectManager.Dispose">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

@@ -1,23 +1,141 @@
-<ul>
-  <li>Value</li>
-  <li>Message</li>
-  <li>Image</li>
-  <li>Graph</li>
-  <li>Time Graph</li>
-</ul>
+<mat-card *ngIf="control.type != controlType.Markdown && control.type != controlType.Break"
+          [ngSwitch]="control.type"
+          class="mat-typography"
+          style="margin: 20px; min-height: 120px">
+  <mat-card-header>
+    <mat-card-title>{{control.label}}</mat-card-title>
+  </mat-card-header>
 
-<ul>
-  <li>Textbox</li>
-  <li>Slider</li>
-  <li>Toggle</li>
-  <li>Color</li>
-  <li>Select
-    <ul>
-      <li>Radio group</li>
-      <li>Checkbox group</li>
-      <li>Select box</li>
-      <li>Image grid</li>
-    </ul>
-  </li>
-</ul>
+  <mat-card-content *ngSwitchCase="controlType.Toggle">
+    <mat-slide-toggle [disabled]="isReadonly"
+                      [(ngModel)]="boolValue"
+                      >{{control.source}}</mat-slide-toggle>
+  </mat-card-content>
+  <!--[checked]="boolValue"-->
+  <!--(change)="boolValue = $event.checked"-->
+
+  <!--(change)="setBoolValue($event.checked)"-->
+  <!--[(ngModel)]="boolValue"-->
+
+  <mat-card-content *ngSwitchCase="controlType.Checkbox">
+    <mat-checkbox [disabled]="isReadonly"
+                  [(ngModel)]="boolValue"
+                  >{{control.label}}</mat-checkbox>
+  </mat-card-content>
+  <!--(change)="setBoolValue($event.checked)"-->
+
+  <mat-card-content *ngSwitchCase="controlType.RadioButton">
+    <mat-radio-group [disabled]="isReadonly"
+                     [(ngModel)]="stringValue"
+                     class="radio-group">
+      <mat-radio-button *ngFor="let value of possibleValues"
+                        [value]="value"
+                        class="radio-button"
+      >{{value}}</mat-radio-button>
+    </mat-radio-group>
+  </mat-card-content>
+  <!--&lt;!&ndash;[value]="stringValue"&ndash;&gt;-->
+  <!--(change)="stringValue = $event.value"-->
+
+  <!--(change)="setBoolValue($event.checked)"-->
+  <mat-card-content *ngSwitchCase="controlType.SelectBox">
+    <mat-form-field class="full-width">
+      <mat-select [disabled]="isReadonly"
+                  [(ngModel)]="stringValue"
+                  >
+        <mat-option *ngFor="let option of possibleValues"
+                    [value]="option">{{option}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <!--[value]="stringValue | async"-->
+    <!--(selectionChange)="setStringValue($event.value)"-->
+    <!--[placeholder]="(possibleValues | async)[0]"-->
+  </mat-card-content>
+
+  <mat-card-content *ngSwitchCase="controlType.Chips">
+    <mat-chip-list [disabled]="isReadonly"></mat-chip-list>
+  </mat-card-content>
+
+  <mat-card-content *ngSwitchCase="controlType.TextBox">
+    <mat-form-field class="full-width">
+      <input matInput
+             [placeholder]="control.source"
+             [(ngModel)]="stringValue"
+             [disabled]="isReadonly"
+             >
+    </mat-form-field>
+  </mat-card-content>
+  <!--(change)="setStringValue($event.target.value)"-->
+  <mat-card-content *ngSwitchCase="controlType.Value">
+    {{stringValue}}
+  </mat-card-content>
+
+  <mat-card-content *ngSwitchCase="controlType.Slider">
+    <mat-slider class="full-width"
+                [min]="range.min"
+                [max]="range.max"
+                [step]="range.step"
+                [(ngModel)]="numberValue"
+                [disabled]="isReadonly"></mat-slider>
+    <!-- thumbLabel="true"
+         (change)="setNumberValue"-->
+    {{numberValue}}
+  </mat-card-content>
+
+  <mat-card-content *ngSwitchCase="controlType.Graph">
+    Graph
+  </mat-card-content>
+
+  <mat-card-content *ngSwitchCase="controlType.Color">
+    Color
+  </mat-card-content>
+
+  <mat-card-content *ngSwitchCase="controlType.Image">
+    Image
+  </mat-card-content>
+
+</mat-card>
+
+<div *ngIf="control.type == controlType.Break" style="min-height: 40px; height: 100%">
+
+</div>
+
+<div *ngIf="control.type == controlType.Markdown">
+  <showdown [value]="stringValue"></showdown>
+</div>
+
+<!--<container-element [ngSwitch]="switch_expression">-->
+  <!--<some-element *ngSwitchCase="match_expression_1">...</some-element>-->
+  <!--<some-element *ngSwitchCase="match_expression_2">...</some-element>-->
+  <!--<some-other-element *ngSwitchCase="match_expression_3">...</some-other-element>-->
+  <!--<ng-container *ngSwitchCase="match_expression_3">-->
+    <!--&lt;!&ndash; use a ng-container to group multiple root nodes &ndash;&gt;-->
+    <!--<inner-element></inner-element>-->
+    <!--<inner-other-element></inner-other-element>-->
+  <!--</ng-container>-->
+  <!--<some-element *ngSwitchDefault>...</some-element>-->
+<!--</container-element>-->
+
+<!--<ul>-->
+  <!--<li>Value</li>-->
+  <!--<li>Message</li>-->
+  <!--<li>Image</li>-->
+  <!--<li>Graph</li>-->
+  <!--<li>Time Graph</li>-->
+<!--</ul>-->
+
+<!--<ul>-->
+  <!--<li>Textbox</li>-->
+  <!--<li>Slider</li>-->
+  <!--<li>Toggle</li>-->
+  <!--<li>Color</li>-->
+  <!--<li>Select-->
+    <!--<ul>-->
+      <!--<li>Radio group</li>-->
+      <!--<li>Checkbox group</li>-->
+      <!--<li>Select box</li>-->
+      <!--<li>Image grid</li>-->
+    <!--</ul>-->
+  <!--</li>-->
+<!--</ul>-->
 

@@ -12,6 +12,9 @@ using Swashbuckle.AspNetCore.Swagger;
 using Tilde.Core;
 using Tilde.Host;
 using Tilde.Core.Projects;
+using Tilde.Host.Hubs;
+using Tilde.Host.Hubs.Client;
+using Tilde.Host.Hubs.Module;
 using Tilde.Runtime.Dotnet;
 
 namespace tilde
@@ -42,7 +45,7 @@ namespace tilde
                 .UseSignalR(
                     routes =>
                     {
-                        routes.MapHub<NotifyHub>("/api/notify");
+                        routes.MapHub<ClientHub>("/api/notify");
                         routes.MapHub<ModuleHub>("/api/module");
                     }
                 );
@@ -107,7 +110,8 @@ namespace tilde
             services.AddSingleton(new ProjectManager(Configuration.GetValue("ProjectRoot", "projects")));
             services.AddSingleton<IRuntime>(new DotnetRuntime());
 
-            services.AddHostedService<NotifyService>();
+            services.AddHostedService<ClientService>();
+            services.AddHostedService<ModuleService>();
         }
     }
 }

@@ -1,9 +1,10 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {HostBinding} from '@angular/core';
-import {EditorItem, EditorState, Project, ProjectDataService, Error} from '../project-data.service';
+import { ProjectDataService} from '../project-data.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {BehaviorSubject, Observable, Subscription, combineLatest} from 'rxjs';
+import {EditorItem, EditorState, Project, Error, ControlPanel} from '../project-types';
 
 export enum ProjectItemType {
   ProjectNotFound = 0,
@@ -17,6 +18,7 @@ export enum ProjectItemType {
   Settings,
   Log,
   Build,
+  Panel,
 }
 
 const typesMap = {
@@ -54,6 +56,7 @@ export class ProjectViewComponent implements OnInit, OnDestroy {
   public text: string;
   public errors: Error[] = [];
   public activePath: string;
+  public controlPanel: ControlPanel;
 
   private shouldCheckForScreenSize = true;
   private _activatedRouteSubscription: Subscription = null;
@@ -174,6 +177,10 @@ export class ProjectViewComponent implements OnInit, OnDestroy {
               this.isDocument = false;
               this.mode = 'csharp'; // 'typescript';
               this.readonly = true;
+            } else if (extension === '.panel') {
+              this.projectItemType.next(ProjectItemType.Panel);
+              this.controlPanel = project.controls.panels[this.activePath + '.json'];
+              this.isDocument = false;
             } else {
               this.projectItemType.next(ProjectItemType.Loading);
               this.isDocument = false;

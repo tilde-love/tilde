@@ -7,6 +7,8 @@ import { environment } from './environments/environment';
 // import 'material-design-icons/iconfont/material-icons.css';
 // import 'typeface-roboto/index.css';
 
+import 'hammerjs';
+
 if (environment.production) {
   enableProdMode();
 }

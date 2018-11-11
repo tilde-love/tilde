@@ -3,7 +3,7 @@ import {Observable, throwError, } from 'rxjs';
 import {HttpClient, HttpEvent, HttpEventType, HttpRequest} from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { map, filter, scan, catchError } from 'rxjs/operators';
-import {Project, Runtime} from './project-data.service';
+import {Project, Runtime} from './project-types';
 
 export class UploadInfo {
   fileName: string;

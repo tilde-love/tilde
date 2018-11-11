@@ -1,0 +1,46 @@
+.project-list {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.full-item {
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.half-item {
+  width: 50%;
+  flex-wrap: wrap;
+}
+
+.quarter-item {
+  width: 25%;
+  flex-wrap: wrap;
+}
+
+@media screen and (max-width: 1024px) {
+  .half-item {
+    width: 50%;
+    flex-wrap: wrap;
+  }
+
+  .quarter-item {
+    width: 50%;
+    flex-wrap: wrap;
+  }
+}
+
+@media screen and (max-width: 740px) {
+  .half-item {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .quarter-item {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+

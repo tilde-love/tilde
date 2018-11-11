@@ -1,5 +1,5 @@
 import {Component, HostBinding, Inject, OnDestroy, OnInit} from '@angular/core';
-import {Project, ProjectDataService} from '../project-data.service';
+import {ProjectDataService} from '../project-data.service';
 import {Observable, Subscription} from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {CreateFileDialogComponent, DeleteFileDialogComponent} from '../project-view/project-view.component';
