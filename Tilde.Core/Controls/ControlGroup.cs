@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Tilde.Core.Projects;
+using Tilde.SharedTypes;
 
 namespace Tilde.Core.Controls
 {
@@ -18,13 +19,13 @@ namespace Tilde.Core.Controls
     public class ControlGroup : IDisposable
     {       
         [JsonProperty("values")]
-        private ConcurrentDictionary<Uri, object> values = new ConcurrentDictionary<Uri, object>();
+        public readonly ConcurrentDictionary<Uri, object> Values = new ConcurrentDictionary<Uri, object>();
         
         [JsonProperty("panels")]
-        private ConcurrentDictionary<Uri, ControlPanel> panels = new ConcurrentDictionary<Uri, ControlPanel>();
+        public readonly ConcurrentDictionary<Uri, ControlPanel> Panels = new ConcurrentDictionary<Uri, ControlPanel>();
         
         [JsonProperty("sources")]
-        private ConcurrentDictionary<Uri, DataSource> sources = new ConcurrentDictionary<Uri, DataSource>();
+        public readonly ConcurrentDictionary<Uri, DataSource> Sources = new ConcurrentDictionary<Uri, DataSource>();
         
         public event ControlValueEvent ControlUpdated;
         public event ControlValueEvent ControlValueChanged;
@@ -33,6 +34,12 @@ namespace Tilde.Core.Controls
         
         [JsonIgnore]
         public Project Project { get; }
+        
+        [JsonConstructor]
+        internal ControlGroup()
+        {
+
+        }
 
         public ControlGroup(Project project)
         {
@@ -57,7 +64,7 @@ namespace Tilde.Core.Controls
 
             if (hash == null)
             {
-                if (panels.TryRemove(file, out ControlPanel _) == false)
+                if (Panels.TryRemove(file, out ControlPanel _) == false)
                 {
                     return; 
                 }
@@ -77,7 +84,7 @@ namespace Tilde.Core.Controls
 
                 panel = new ControlPanel {Hash = hash, Controls = controls};
 
-                panels[file] = panel; 
+                Panels[file] = panel; 
             }
             catch (Exception ex)
             {
@@ -92,23 +99,37 @@ namespace Tilde.Core.Controls
 
         public async Task SetValue(Uri uri, string connectionId, object value)
         {
-            values[uri] = value; 
+            Values[uri] = value; 
          
             ControlValueChanged?.Invoke(Project.Uri, uri, connectionId, value);
         }
         
-        public async Task DefineDataSource(Uri uri, DataSourceType dataSourceType, bool @readonly, NumericRange? range, string[] values)
+        public async Task DefineDataSource(
+            Uri uri,
+            DataSourceType dataSourceType,
+            bool @readonly,
+            NumericRange? range,
+            string[] values,
+            Graph graph)
         {
-            DataSource dataSource = new DataSource {Uri = uri, DataSourceType = dataSourceType, Readonly = @readonly, NumericRange = range, Values = values };
+            DataSource dataSource = new DataSource
+            {
+                Uri = uri,
+                DataSourceType = dataSourceType,
+                Readonly = @readonly,
+                NumericRange = range,
+                Values = values,
+                Graph = graph 
+            };
 
-            sources[uri] = dataSource;
+            Sources[uri] = dataSource;
          
             DataSourceChanged?.Invoke(Project.Uri, uri, dataSource);
         }     
         
         public async Task DeleteDataSource(Uri uri)
         {
-            if (sources.TryRemove(uri, out DataSource _) == false)
+            if (Sources.TryRemove(uri, out DataSource _) == false)
             {
                 return; 
             }

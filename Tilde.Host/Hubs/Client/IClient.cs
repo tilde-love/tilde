@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Tilde.Core;
 using Tilde.Core.Controls;
 using Tilde.Core.Projects;
+using Tilde.SharedTypes;
 
 namespace Tilde.Host.Hubs.Client
 {

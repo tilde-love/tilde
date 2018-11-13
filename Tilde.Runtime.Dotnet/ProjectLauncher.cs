@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using Tilde.Core.Projects;
+using Tilde.SharedTypes;
 
 namespace Tilde.Runtime.Dotnet
 {
@@ -31,7 +32,7 @@ namespace Tilde.Runtime.Dotnet
             if (process != null)
             {
                 Debug.WriteLine("Shutting down script");
-                process.StandardInput.WriteLine("Exit"); // ModuleCommand.Exit.ToString()
+                process.StandardInput.WriteLine(ModuleCommand.Exit.ToString());
 
                 if (process.WaitForExit(10000) == false)
                 {
@@ -51,17 +52,17 @@ namespace Tilde.Runtime.Dotnet
             Log?.Dispose();
         }
 
-        public void Launch()
+        public void Launch(Uri serverUri)
         {
-            string serverHost = Environment
-                                    .GetEnvironmentVariable("ASPNETCORE_URLS")
-                                    ?.Replace("*","localhost") 
-                                ?? throw new Exception("Cannot resolve host uri"); 
+//            string serverHost = Environment
+//                                    .GetEnvironmentVariable("ASPNETCORE_URLS")
+//                                    ?.Replace("*","localhost") 
+//                                ?? throw new Exception("Cannot resolve host uri"); 
             
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $@"""bin/{project.Uri}.dll"" {serverHost}/api/module ""{project.Uri}""",
+                Arguments = $@"""bin/{project.Uri}.dll"" {new Uri(serverUri, "api/module")} ""{project.Uri}""",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,

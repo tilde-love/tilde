@@ -1,9 +1,12 @@
 ﻿// Copyright (c) Tilde Love Project. All rights reserved.
 // Licensed under the MIT license. See LICENSE in the project root for license information.
 
+using System;
 using System.IO;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +20,7 @@ using Tilde.Host.Hubs.Client;
 using Tilde.Host.Hubs.Module;
 using Tilde.Runtime.Dotnet;
 
-namespace tilde
+namespace Tilde
 {
     public class Startup
     {
@@ -50,6 +53,12 @@ namespace tilde
                     }
                 );
 
+            var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
+
+            app.ApplicationServices.GetService<IRuntime>()
+                    .ServerUri = new Uri(serverAddressesFeature.Addresses.FirstOrDefault() ?? "http://localhost:5000", UriKind.RelativeOrAbsolute);
+            
+            
             appLifetime.ApplicationStopping.Register(
                 () => app.ApplicationServices.GetService<IRuntime>()
                     .Dispose()

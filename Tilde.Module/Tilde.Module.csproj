@@ -65,4 +65,6 @@
       <None Remove="Tilde.Module.xml" />
     </ItemGroup>
 
+    <Import Project="..\Tilde.SharedTypes\Tilde.SharedTypes.projitems" Label="Shared" />
+
 </Project>

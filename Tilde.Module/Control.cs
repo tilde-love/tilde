@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Tilde.SharedTypes;
 
 namespace Tilde.Module
 {
@@ -12,26 +13,29 @@ namespace Tilde.Module
         protected readonly Uri Uri;
         protected readonly NumericRange? Range;
         protected readonly string[] Values;
+        protected readonly Graph Graph;
 
         public Control(
             Uri uri,
             DataSourceType sourceType,
             bool @readonly, 
             NumericRange? range,
-            string[] values)
+            string[] values,
+            Graph graph)
         {
-            this.Uri = uri;
-            this.SourceType = sourceType;
-            this.Readonly = @readonly;
-            this.Range = range;
-            this.Values = values; 
+            Uri = uri;
+            SourceType = sourceType;
+            Readonly = @readonly;
+            Range = range;
+            Values = values;
+            Graph = graph;
         }
 
         public async Task Add(ModuleConnection connection)
         {
             this.connection = connection;
             
-            await connection.DefineDataSource(Uri, SourceType, Readonly, Range, Values);
+            await connection.DefineDataSource(Uri, SourceType, Readonly, Range, Values, Graph);
 
             if (Readonly == false)
             {
@@ -73,8 +77,14 @@ namespace Tilde.Module
             }
         }
 
-        protected Control(string uri, DataSourceType dataSourceType, bool @readonly, NumericRange? range, string[] values)
-            : base(new Uri(uri, UriKind.RelativeOrAbsolute), dataSourceType, @readonly, range, values)
+        protected Control(
+            string uri,
+            DataSourceType dataSourceType,
+            bool @readonly = false,
+            NumericRange? range = null,
+            string[] values = null,
+            Graph graph = null)
+            : base(new Uri(uri, UriKind.RelativeOrAbsolute), dataSourceType, @readonly, range, values, graph)
         {
         }
     }
@@ -259,7 +269,38 @@ namespace Tilde.Module
             await SetValue(connectionId, this.value);
         }
     }
-
+    
+//    public class GraphControl : Control<Graph>
+//    {
+//        public GraphControl(string uri, bool @readonly)
+//            : base(uri, DataSourceType.Graph, @readonly, null, null, ))
+//        {
+//            if (typeof(TEnum).IsEnum == false) 
+//            {
+//                throw new ArgumentException("TEnum must be an enumeration type", nameof(TEnum));
+//            }
+//        }
+//
+//        protected override async void ValueUpdated(Uri uri, string connectionId, object value)
+//        {
+//            if (Readonly == true)
+//            {
+//                return; 
+//            }
+//
+//            switch (value)
+//            {
+//                case string s:
+//                    Enum.TryParse(s, true, out this.value); 
+//                    break;
+//                default:
+//                    break; 
+//            }
+//            
+//            await SetValue(connectionId, this.value);
+//        }
+//    }
+    
 //    public class Control<T> : Control
 //    {
 //        private T value;

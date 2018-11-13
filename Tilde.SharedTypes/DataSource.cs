@@ -1,10 +1,10 @@
-// Copyright (c) Tilde Love Project. All rights reserved.
+﻿// Copyright (c) Tilde Love Project. All rights reserved.
 // Licensed under the MIT license. See LICENSE in the project root for license information.
 
 using System;
 using Newtonsoft.Json;
 
-namespace Tilde.Core.Controls
+namespace Tilde.SharedTypes
 {
     public class DataSource
     {
@@ -25,5 +25,14 @@ namespace Tilde.Core.Controls
         
         [JsonProperty("values")]
         public string[] Values;
+
+        [JsonProperty("graph")] 
+        public Graph Graph;
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return $"{Uri} ({(Readonly ? "readonly " : "")}{DataSourceType})";
+        }
     }
 }

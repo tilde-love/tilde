@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Tilde Love Project. All rights reserved.
 // Licensed under the MIT license. See LICENSE in the project root for license information.
 //
-namespace tilde
+namespace Tilde
 {
 //    public class PluginsConfig : Dictionary<string, string>
 //    {        

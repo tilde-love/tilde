@@ -36,83 +36,101 @@ namespace App
         // Run the actual module code 
         public async Task Run(ModuleConnection moduleConnection, CancellationToken cancellationToken)
         {
-            Console.WriteLine("Module start");
-
-            await bool1.Add(moduleConnection);
-            await int1.Add(moduleConnection);
-            await float1.Add(moduleConnection);
-            await string1.Add(moduleConnection);
-            await enum1.Add(moduleConnection);
-
-            float[] array = new float[8];
-            
-            Random rand = new Random();
-            
-            int i = 0;
-            
-            bool boolValue = false;
-            bool1.Value = boolValue; 
-            
-            int intValue = 0;
-            int1.Value = intValue; 
-            
-            float floatValue = 0;
-            float1.Value = floatValue; 
-            
-            string stringValue = "";
-            string1.Value = stringValue; 
-            
-            TestEnum enumValue = TestEnum.Duck;
-            enum1.Value = enumValue; 
-            
-            while (cancellationToken.IsCancellationRequested == false)
+            try
             {
-                for (int j = 0; j < array.Length; j++)
+                Console.WriteLine("Module start");
+
+                await bool1.Add(moduleConnection);
+                await int1.Add(moduleConnection);
+                await float1.Add(moduleConnection);
+                await string1.Add(moduleConnection);
+                await enum1.Add(moduleConnection);
+
+                float[] array = new float[8];
+
+                Random rand = new Random();
+
+                int i = 0;
+
+                bool boolValue = false;
+                bool1.Value = boolValue;
+
+                int intValue = 0;
+                int1.Value = intValue;
+
+                float floatValue = 0;
+                float1.Value = floatValue;
+
+                string stringValue = "";
+                string1.Value = stringValue;
+
+                TestEnum enumValue = TestEnum.Duck;
+                enum1.Value = enumValue;
+
+                while (cancellationToken.IsCancellationRequested == false)
                 {
-                    array[j] = (float)rand.NextDouble(); 
-                }
-                
-                if (bool1.Value != boolValue) {
-                    boolValue = bool1.Value; 
-                    Console.WriteLine($"Value changed {nameof(bool1)}" + boolValue);
-                }
+                    for (int j = 0; j < array.Length; j++)
+                    {
+                        array[j] = (float) rand.NextDouble();
+                    }
 
-                if (int1.Value != intValue) {
-                    intValue = int1.Value; 
-                    Console.WriteLine($"Value changed {nameof(int1)}" + intValue);
-                }
+                    if (bool1.Value != boolValue)
+                    {
+                        boolValue = bool1.Value;
+                        Console.WriteLine($"Value changed {nameof(bool1)} " + boolValue);
+                    }
 
-                if (float1.Value != floatValue) {
-                    floatValue = float1.Value; 
-                    Console.WriteLine($"Value changed {nameof(float1)}" + floatValue);
-                }
+                    if (int1.Value != intValue)
+                    {
+                        intValue = int1.Value;
+                        Console.WriteLine($"Value changed {nameof(int1)} " + intValue);
+                    }
 
-                if (string1.Value != stringValue) {
-                    stringValue = string1.Value; 
-                    Console.WriteLine($"Value changed {nameof(string1)}" + stringValue);
+                    if (float1.Value != floatValue)
+                    {
+                        floatValue = float1.Value;
+                        Console.WriteLine($"Value changed {nameof(float1)} " + floatValue);
+                    }
+
+                    if (string1.Value != stringValue)
+                    {
+                        stringValue = string1.Value;
+                        Console.WriteLine($"Value changed {nameof(string1)} " + stringValue);
+                    }
+
+                    if (enum1.Value != enumValue)
+                    {
+                        enumValue = enum1.Value;
+                        Console.WriteLine($"Value changed {nameof(enum1)} " + enumValue);
+                    }
+
+                    bool1.Value = i++ % 2 == 0;
+                    float1.Value = (float) rand.NextDouble() * 20f - 10f;
+//                moop2.Value = i;
+//                moop3.Value = $"MOOP {i}";
+//                moop4.Value = array;
+//                
+                    await Task.Delay(100);
                 }
-                
-                if (enum1.Value != enumValue) {
-                    enumValue = enum1.Value; 
-                    Console.WriteLine($"Value changed {nameof(enum1)}" + enumValue);
-                }
-                
-                bool1.Value = i++ % 2 == 0;
-                float1.Value = (float)rand.NextDouble() * 20f - 10f;
-                // moop2.Value = i;
-                // moop3.Value = $"MOOP {i}";
-                // moop4.Value = array;
-                
-                await Task.Delay(1000);
             }
-            
-            await bool1.Remove();
-            await int1.Remove();
-            await float1.Remove();
-            await string1.Remove();
-            await enum1.Remove(); 
+            catch (TaskCanceledException ex)
+            {
 
-            Console.WriteLine("Module end");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                await bool1.Remove();
+                await int1.Remove();
+                await float1.Remove();
+                await string1.Remove();
+                await enum1.Remove();
+
+                Console.WriteLine("Module end");
+            }
         }
     }
 }

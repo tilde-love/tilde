@@ -72,4 +72,6 @@
     <ItemGroup>
       <None Remove="Tilde.Core.xml" />
     </ItemGroup>
+
+    <Import Project="..\Tilde.SharedTypes\Tilde.SharedTypes.projitems" Label="Shared" />
 </Project>

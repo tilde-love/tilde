@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Tilde.SharedTypes;
 
 namespace Tilde.Module
 {
@@ -14,13 +15,6 @@ namespace Tilde.Module
         void Play();
         
         Task Run(ModuleConnection connection, CancellationToken cancellationToken);
-    }
-
-    public enum ModuleCommand
-    {
-        Play,
-        Pause,
-        Exit
     }
 
     public class ModuleRunner

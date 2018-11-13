@@ -36,6 +36,9 @@ namespace Tilde.Runtime.Dotnet
         public Project Project => activeProject;
 
         /// <inheritdoc />
+        public Uri ServerUri { get; set; }
+
+        /// <inheritdoc />
         public void Load(Project project)
         {
             Debug.WriteLine($"Load project: {project.Uri}");
@@ -64,6 +67,15 @@ namespace Tilde.Runtime.Dotnet
                 state = value;
 
                 StateChanged?.Invoke(this, EventArgs.Empty);
+
+                if (state == RuntimeState.Stopped)
+                {
+                    ProjectLauncher projectLauncher = Interlocked.Exchange(ref this.projectLauncher, null);
+
+                    projectLauncher?.Dispose();
+
+                    activeProject = null;
+                }
             }
         }
 
@@ -125,7 +137,7 @@ namespace Tilde.Runtime.Dotnet
 
                         Interlocked.Exchange(ref projectLauncher, launcher);
 
-                        launcher.Launch();
+                        launcher.Launch(ServerUri);
                     }
                     catch (Exception ex)
                     {

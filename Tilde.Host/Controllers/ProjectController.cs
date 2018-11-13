@@ -122,7 +122,9 @@ namespace Tilde.Host.Controllers
                 return NotFound();
             }
 
-            if (projectObject.Files.ContainsKey(file) == false)
+            if (projectObject.Files.ContainsKey(file) == false
+                && file.ToString() != "build"
+                && file.ToString() != "log")
             {
                 return NotFound();
             }

@@ -1,18 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <VersionBase>1.0.0</VersionBase>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
+    <IncludeSymbols>true</IncludeSymbols>
+    <VersionSuffix>-debug-$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</VersionSuffix>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+    <IncludeSymbols>false</IncludeSymbols>
+    <VersionSuffix />
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>$(VersionBase)$(VersionSuffix)</Version>
+    <PackageId>$(AssemblyName)</PackageId>
+    <Company>Tilde Love Project</Company>
+    <PackageProjectUrl>http://tilde.love</PackageProjectUrl>
+    <Authors>Phill Tew</Authors>
+    <Copyright>Copyright (c) Tilde Love Project. All rights reserved.</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+  
   <ItemGroup>
     <Folder Include="wwwroot" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Tilde.Cli\Tilde.Cli.csproj" />
     <ProjectReference Include="..\Tilde.Host\Tilde.Host.csproj" />
     <ProjectReference Include="..\Tilde.Runtime.Dotnet\Tilde.Runtime.Dotnet.csproj" />
   </ItemGroup>

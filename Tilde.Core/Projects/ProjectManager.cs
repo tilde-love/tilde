@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Tilde.Core.Controls;
+using Tilde.SharedTypes;
 
 namespace Tilde.Core.Projects
 {

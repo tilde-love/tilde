@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
+using Tilde.SharedTypes;
 
 namespace Tilde.Module
 {
@@ -95,14 +96,14 @@ namespace Tilde.Module
             await connection.InvokeAsync("SetValue", moduleName, uri, connectionId, value, cancellationToken);
         }
 
-        public async Task DefineDataSource(Uri uri, DataSourceType type, bool @readonly, NumericRange? range, string[] values)
+        public async Task DefineDataSource(Uri uri, DataSourceType type, bool @readonly, NumericRange? range, string[] values, Graph graph)
         {
-            await connection.InvokeAsync("DefineDataSource", moduleName, uri, type, @readonly, range, values, cancellationToken);
+            await connection.InvokeAsync("DefineDataSource", moduleName, uri, type, @readonly, range, values, graph, cancellationToken);
         }
 
         public async Task DeleteDataSource(Uri uri)
         {
-            await connection.InvokeAsync("DeleteDataSource", moduleName, uri, cancellationToken);
+            await connection.InvokeAsync("DeleteDataSource", moduleName, uri, CancellationToken.None);
         }
 
         public void RegisterValueChange(Uri uri, ValueUpdated callback)

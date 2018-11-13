@@ -18,3 +18,11 @@
 
 **We are lost**
 https://www.youtube.com/watch?v=QSVyyykaEOo
+
+Verbs
+* serve
+* watch
+* push
+* pull 
+* logs
+* 

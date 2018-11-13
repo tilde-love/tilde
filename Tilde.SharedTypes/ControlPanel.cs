@@ -1,13 +1,10 @@
-// Copyright (c) Tilde Love Project. All rights reserved.
+﻿// Copyright (c) Tilde Love Project. All rights reserved.
 // Licensed under the MIT license. See LICENSE in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 
-namespace Tilde.Core.Controls
+namespace Tilde.SharedTypes
 {
     public class ControlPanel
     {

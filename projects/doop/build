@@ -3,10 +3,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
 
   Skipping project "D:\code\tilde-love\tilde\Zero.Module\Zero.Module.csproj" because it was not found.
   Skipping project "D:\code\tilde-love\tilde\Zero.Module\Zero.Module.csproj" because it was not found.
-  Restoring packages for D:\code\tilde-love\tilde\projects\doop\doop.csproj...
-  Generating MSBuild file D:\code\tilde-love\tilde\projects\doop\obj\doop.csproj.nuget.g.props.
-  Generating MSBuild file D:\code\tilde-love\tilde\projects\doop\obj\doop.csproj.nuget.g.targets.
-  Restore completed in 298.53 ms for D:\code\tilde-love\tilde\projects\doop\doop.csproj.
+  Restore completed in 46.52 ms for D:\code\tilde-love\tilde\projects\doop\doop.csproj.
 C:\Program Files\dotnet\sdk\2.1.403\Microsoft.Common.CurrentVersion.targets(1879,5): warning : The referenced project '..\..\Zero.Module\Zero.Module.csproj' does not exist. [D:\code\tilde-love\tilde\projects\doop\doop.csproj]
 Module.cs(4,7): error CS0246: The type or namespace name 'Zero' could not be found (are you missing a using directive or an assembly reference?) [D:\code\tilde-love\tilde\projects\doop\doop.csproj]
 Program.cs(1,7): error CS0246: The type or namespace name 'Zero' could not be found (are you missing a using directive or an assembly reference?) [D:\code\tilde-love\tilde\projects\doop\doop.csproj]
@@ -23,4 +20,4 @@ Module.cs(19,31): error CS0246: The type or namespace name 'ModuleConnection' co
     1 Warning(s)
     4 Error(s)
 
-Time Elapsed 00:00:02.32
+Time Elapsed 00:00:02.39

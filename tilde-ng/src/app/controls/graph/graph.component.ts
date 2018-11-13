@@ -1,5 +1,5 @@
 import {Component, HostBinding, Input, OnInit} from '@angular/core';
-import {GraphLine} from '../graph-types';
+import {GraphLine} from '../../scripting/project-types';
 
 @Component({
   selector: 'app-graph',

@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Tilde.Module" Version="1.0.0-debug-201811110206" />
+      <PackageReference Include="Tilde.Module" Version="1.0.0-debug-201811131949" />
     </ItemGroup>
 
 </Project>

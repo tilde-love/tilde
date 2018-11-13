@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>6F6125BE-2E32-4D3B-BB0A-3DBB6041C79D</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Tilde.SharedTypes</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DataSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graph.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LayoutSize.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Control.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ControlPanel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ControlType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataSourceType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ModuleCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NumericRange.cs" />
+  </ItemGroup>
+</Project>

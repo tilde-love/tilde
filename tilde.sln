@@ -19,6 +19,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilde.Runtime.Dotnet", "Til
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "projects\test\test.csproj", "{A64D3473-D943-4C0A-ADFB-E63AD8169130}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Tilde.SharedTypes", "Tilde.SharedTypes\Tilde.SharedTypes.shproj", "{39C1A8E5-2C92-47D9-9DB0-E4F64FC207F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tilde.Cli", "Tilde.Cli\Tilde.Cli.csproj", "{F2868A0B-C57D-4C73-AF9F-C6EA65872E7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,5 +53,9 @@ Global
 		{A64D3473-D943-4C0A-ADFB-E63AD8169130}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A64D3473-D943-4C0A-ADFB-E63AD8169130}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A64D3473-D943-4C0A-ADFB-E63AD8169130}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2868A0B-C57D-4C73-AF9F-C6EA65872E7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2868A0B-C57D-4C73-AF9F-C6EA65872E7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2868A0B-C57D-4C73-AF9F-C6EA65872E7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2868A0B-C57D-4C73-AF9F-C6EA65872E7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

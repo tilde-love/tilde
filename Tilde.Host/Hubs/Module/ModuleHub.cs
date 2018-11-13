@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Tilde.Core.Controls;
 using Tilde.Core.Projects;
+using Tilde.SharedTypes;
 
 namespace Tilde.Host.Hubs.Module
 {
@@ -63,7 +64,14 @@ namespace Tilde.Host.Hubs.Module
             await proj.Controls.SetValue(uri, connectionId, value);
         }
 
-        public async Task DefineDataSource(Uri project, Uri uri, DataSourceType type, bool @readonly, NumericRange? range, string[] values)
+        public async Task DefineDataSource(
+            Uri project,
+            Uri uri,
+            DataSourceType type,
+            bool @readonly,
+            NumericRange? range,
+            string[] values,
+            Graph graph)
         {
             Console.WriteLine($"DefineDataSource: {project}/{uri} {type} {(@readonly ? "readonly" : "")}");
             
@@ -72,7 +80,7 @@ namespace Tilde.Host.Hubs.Module
                 return; 
             }
 
-            await proj.Controls.DefineDataSource(uri, type, @readonly, range, values); 
+            await proj.Controls.DefineDataSource(uri, type, @readonly, range, values, graph); 
         }
 
         public async Task DeleteDataSource(Uri project, Uri uri)

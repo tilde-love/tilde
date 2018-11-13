@@ -1,11 +1,15 @@
-// Copyright (c) Tilde Love Project. All rights reserved.
+﻿// Copyright (c) Tilde Love Project. All rights reserved.
 // Licensed under the MIT license. See LICENSE in the project root for license information.
 
-namespace Tilde.Core.Controls
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace Tilde.SharedTypes
 {
     /// <summary>
     /// Data types for data sources.
     /// </summary>
+    // [JsonConverter(typeof(StringEnumConverter))]
     public enum DataSourceType
     {
         /// <summary>
@@ -52,6 +56,16 @@ namespace Tilde.Core.Controls
         /// Image
         /// </summary>
         Image, 
+        
+        /// <summary>
+        /// Graph object composed of graph lines and styles 
+        /// </summary>
+        Graph, 
+        
+        /// <summary>
+        /// Base64 encoded svg image
+        /// </summary>
+        Svg,
         
         /// <summary>
         /// Unknown type 

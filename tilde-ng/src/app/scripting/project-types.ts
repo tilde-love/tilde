@@ -21,6 +21,7 @@ export enum ControlType {
   Value,
   Slider,
   Graph,
+  Svg,
   Color,
   Image,
   Markdown,
@@ -43,6 +44,8 @@ export enum DataSourceType {
   IntegerArray,
   Color,
   Image,
+  Graph,
+  Svg,
   Any,
 }
 
@@ -119,4 +122,9 @@ export class ControlEvent {
   public project: string;
   public control: string;
   public value: any;
+}
+
+export class GraphLine {
+  public path: string;
+  public color: string;
 }

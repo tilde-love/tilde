@@ -45,7 +45,13 @@ namespace Tilde.Core.Projects
         public IEnumerable<Uri> FileUris => Files.Keys;
 
         [JsonProperty("controls")]
-        public ControlGroup Controls { get; } 
+        public ControlGroup Controls { get; }
+
+        [JsonConstructor]
+        internal Project()
+        {
+
+        }
 
         public Project(DirectoryInfo projectFolder)
         {
