@@ -11,8 +11,6 @@ namespace Tilde.Core
         Project Project { get; }
 
         RuntimeState State { get; set; }
-        
-        Uri ServerUri { get; set; }
 
         void Load(Project project);
 

@@ -9,7 +9,7 @@ namespace Tilde
 //        {
 //            List<IScriptApi> apis = new List<IScriptApi>(); 
 //            
-//            foreach (Type type in assembly.GetExportedTypes())
+//            foreach (ItemTypes type in assembly.GetExportedTypes())
 //            {
 //                if (type.IsAbstract == true)
 //                {
@@ -32,7 +32,7 @@ namespace Tilde
 //                }
 //
 //
-//                ConstructorInfo constructorInfo = type.GetConstructor(Type.EmptyTypes);
+//                ConstructorInfo constructorInfo = type.GetConstructor(ItemTypes.EmptyTypes);
 //
 //                if (constructorInfo == null)
 //                {

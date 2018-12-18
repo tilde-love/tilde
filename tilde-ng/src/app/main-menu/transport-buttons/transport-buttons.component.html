@@ -1,21 +1,30 @@
 <section>
   <!-- stop the script -->
   <button mat-icon-button
-          matTooltip="Stop" matTooltipPosition="below" matTooltipShowDelay="500"
+          matTooltip="Stop"
+          matTooltipPosition="below"
+          matTooltipShowDelay="500"
+          [disabled]="this.currentProject === null"
   >
     <mat-icon>stop</mat-icon>
   </button>
 
   <!-- pause the script -->
   <button mat-icon-button
-          matTooltip="Pause" matTooltipPosition="below" matTooltipShowDelay="500"
+          matTooltip="Pause"
+          matTooltipPosition="below"
+          matTooltipShowDelay="500"
+          [disabled]="this.currentProject === null"
   >
     <mat-icon>pause</mat-icon>
   </button>
 
   <!-- run the script -->
   <button mat-icon-button
-          matTooltip="Play" matTooltipPosition="below" matTooltipShowDelay="500"
+          matTooltip="Play"
+          matTooltipPosition="below"
+          matTooltipShowDelay="500"
+          [disabled]="this.currentProject === null"
   >
     <mat-icon>play_arrow</mat-icon>
   </button>

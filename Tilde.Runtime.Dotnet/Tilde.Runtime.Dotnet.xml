@@ -10,9 +10,6 @@
         <member name="P:Tilde.Runtime.Dotnet.DotnetRuntime.Project">
             <inheritdoc />
         </member>
-        <member name="P:Tilde.Runtime.Dotnet.DotnetRuntime.ServerUri">
-            <inheritdoc />
-        </member>
         <member name="M:Tilde.Runtime.Dotnet.DotnetRuntime.Load(Tilde.Core.Projects.Project)">
             <inheritdoc />
         </member>

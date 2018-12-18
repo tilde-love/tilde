@@ -2,26 +2,24 @@
 
 
   <PropertyGroup>
-    <VersionBase>1.0</VersionBase>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
-    <FullVersionNumber>$(VersionBase).$([System.DateTime]::Now.ToString("Mdd.HHmm"))</FullVersionNumber>
-    <IncludeSymbols>true</IncludeSymbols>
-    <VersionSuffix>-debug</VersionSuffix>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+    <VersionBase>1.0.0</VersionBase>
     <!--<NewVersionNumber>$([System.DateTime]::Now.ToString("yyyy.Mdd.Hmm"))</NewVersionNumber>-->
-    <FullVersionNumber>$(VersionBase).$([System.DateTime]::Now.ToString("Mdd.HHmm"))</FullVersionNumber>
     <IncludeSymbols>false</IncludeSymbols>
     <VersionSuffix />
-    
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
+    <VersionBase>1.0.1</VersionBase>
+    <IncludeSymbols>true</IncludeSymbols>
+    <VersionSuffix>-debug-$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</VersionSuffix>
+  </PropertyGroup>
+  
   <PropertyGroup>
-    <Version>$(FullVersionNumber)$(VersionSuffix)</Version>
+    <Version>$(VersionBase)$(VersionSuffix)</Version>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <PackageId>$(AssemblyName)</PackageId>
     <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->

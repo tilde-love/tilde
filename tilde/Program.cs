@@ -12,28 +12,52 @@ using CSharpx;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Tilde.Cli;
 
 namespace Tilde
 {
     public class Program
     {
-        public static IWebHost BuildWebHost(string[] args)
+        public static IWebHostBuilder BuildWebHost(ServeVerb opts, string[] args)
         {
-            return WebHost.CreateDefaultBuilder(args)
+            string applicationPath = new FileInfo(typeof(Program).Assembly.Location).DirectoryName; 
+            
+            IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
                 // .SuppressStatusMessages(true) //disable the status messages
+                .UseSetting($"{nameof(ServeVerb)}.{nameof(ServeVerb.ServerUri)}", opts.ServerUri.ToString())
+                .UseSetting($"{nameof(ServeVerb)}.{nameof(ServeVerb.ProjectFolder)}", opts.ProjectFolder)
+                .UseSetting($"{nameof(ServeVerb)}.{nameof(ServeVerb.WwwRoot)}", opts.WwwRoot)
+                .UseUrls(opts.ServerUri.ToString())
+                .UseWebRoot(opts.WwwRoot)
                 .UseSetting(WebHostDefaults.SuppressStatusMessagesKey, "True") // add this line
-                .UseStartup<Startup>()
-                .Build();
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    var env = hostingContext.HostingEnvironment;
+                    config
+                        .AddJsonFile(Path.Combine(applicationPath, "appsettings.json"), true, true)
+                        .AddJsonFile(Path.Combine(applicationPath, $"appsettings.{env.EnvironmentName}.json"), true, true);
+                    config.AddEnvironmentVariables();
+                })
+//                .ConfigureLogging((hostingContext, logging) =>
+//                {
+//                    logging.ClearProviders(); 
+////                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+////                    logging.AddConsole();
+////                    logging.AddDebug();
+////                    logging.AddEventSourceLogger();
+//                })
+                .UseStartup<Startup>();
+            
+            return builder;
         }                
 
         public static int Main(string[] args)
         {
-            ParserSettings settings = new ParserSettings();
-
-            //settings.
-            
-            Parser parser = new Parser();
+            Parser parser = new Parser(
+                parserSettings => { parserSettings.CaseInsensitiveEnumValues = true; } 
+            );          
             
             List<Type> verbs = new List<Type>();
             
@@ -45,22 +69,6 @@ namespace Tilde
                 args,
                 verbs.ToArray()
             );
-//            
-//            ParserResult<object> parserResult = parser.ParseArguments<                   
-//                ServeVerb,
-//                ListVerb, 
-//                NewVerb,
-//                DeleteVerb,
-//                StartVerb,
-//                StopVerb, 
-//                PullVerb,
-//                PushVerb, 
-//                WatchVerb,
-//                LogsVerb
-//                >(args);
-            //parserResult.WithParsed<MyOptions>(options => DoSomething(options));
-
-            // Console.WriteLine(HelpText.AutoBuild(parserResult, null, null));
             
             parserResult.WithParsed((ServeVerb opts) => Serve(opts));
             
@@ -69,40 +77,36 @@ namespace Tilde
             Commands.ParseErrors(parserResult);
             
             return 0; 
-
-//            return Parser.Default
-//                .ParseArguments<
-//                    ServeVerb, 
-//                    NewVerb, 
-//                    StartVerb,
-//                    StopVerb, 
-//                    PullVerb,
-//                    PushVerb, 
-//                    WatchVerb,
-//                    LogsVerb
-//                >(args)
-//                .MapResult(
-//                    (ServeVerb opts) => Serve(opts),
-//                    (NewVerb opts) => Commands.New(opts),       
-//                    (StartVerb opts) => Commands.Start(opts),
-//                    (StopVerb opts) => Commands.Stop(opts),
-//                    (PullVerb opts) => Commands.Pull(opts),                   
-//                    (PushVerb opts) => Commands.Push(opts),
-//                    (WatchVerb opts) => Commands.Watch(opts),
-//                    (LogsVerb opts) => Commands.Logs(opts),
-//                    errs => 1                    
-//                );
         }        
 
         public static int Serve(ServeVerb opts)
-        {                        
+        {
+            if (string.IsNullOrWhiteSpace(opts.ProjectFolder))
+            {
+                opts.ProjectFolder = "./"; 
+            }
+
+            if (opts.ServerUri == null)
+            {
+                opts.ServerUri = new Uri("http://localhost:5000", UriKind.RelativeOrAbsolute); 
+            }
+
+            string applicationPath = new FileInfo(typeof(Program).Assembly.Location).DirectoryName; 
+            
+            if (string.IsNullOrWhiteSpace(opts.WwwRoot))
+            {
+                opts.WwwRoot = string.IsNullOrWhiteSpace(opts.WwwRoot) ? Path.Combine(applicationPath, "wwwroot") : opts.WwwRoot; 
+            }
+
             Logo.PrintLogo();
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
 
             try
             {
-                BuildWebHost(new string[0]).Run();
+                BuildWebHost(opts, new string[0])
+                    .Build()
+                    .Run();
 
                 return 0; 
             }

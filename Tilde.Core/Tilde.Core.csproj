@@ -1,20 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <VersionBase>1.0.0</VersionBase>
         <LangVersion>7.1</LangVersion>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
-        <IncludeSymbols>true</IncludeSymbols>
-        <VersionSuffix>-debug-$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</VersionSuffix>
-    </PropertyGroup>
-
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+        <VersionBase>1.0.0</VersionBase>
         <IncludeSymbols>false</IncludeSymbols>
         <VersionSuffix />
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
+        <VersionBase>1.0.1</VersionBase>
+        <IncludeSymbols>true</IncludeSymbols>
+        <VersionSuffix>-debug-$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</VersionSuffix>
+    </PropertyGroup>
+    
     <PropertyGroup>
         <Version>$(VersionBase)$(VersionSuffix)</Version>
         <TargetFramework>netstandard2.0</TargetFramework>

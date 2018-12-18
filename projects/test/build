@@ -1,17 +1,11 @@
 Microsoft (R) Build Engine version 15.8.169+g1ccb72aefa for .NET Core
 Copyright (C) Microsoft Corporation. All rights reserved.
 
-  Restoring packages for D:\code\tilde-love\tilde\projects\test\test.csproj...
-  Installing Tilde.Module 1.0.0-debug-201811131949.
-  Generating MSBuild file D:\code\tilde-love\tilde\projects\test\obj\test.csproj.nuget.g.props.
-  Restore completed in 448.01 ms for D:\code\tilde-love\tilde\projects\test\test.csproj.
-Module.cs(116,42): warning CS0168: The variable 'ex' is declared but never used [D:\code\tilde-love\tilde\projects\test\test.csproj]
+  Restore completed in 68.22 ms for D:\code\tilde-love\tilde\projects\test\test.csproj.
   test -> D:\code\tilde-love\tilde\projects\test\bin\test.dll
 
 Build succeeded.
-
-Module.cs(116,42): warning CS0168: The variable 'ex' is declared but never used [D:\code\tilde-love\tilde\projects\test\test.csproj]
-    1 Warning(s)
+    0 Warning(s)
     0 Error(s)
 
-Time Elapsed 00:00:03.68
+Time Elapsed 00:00:02.53

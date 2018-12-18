@@ -1,13 +1,22 @@
 <section>
   <!-- script editor -->
-  <button mat-icon-button class="showOver340" [routerLink]="['/projects/', this.currentProject]"
-          [matTooltip]="'Edit project ' + this.currentProject" matTooltipPosition="below" matTooltipShowDelay="500"
+  <button mat-icon-button
+          class="showOver340"
+          [routerLink]="['/projects/', this.currentProject]"
+          [matTooltip]="'Edit project ' + this.currentProject"
+          [disabled]="this.currentProject === null"
+          matTooltipPosition="below"
+          matTooltipShowDelay="500"
   >
     <mat-icon>edit</mat-icon>
   </button>
 
-  <button mat-icon-button routerLink="/"
-          [matTooltip]="this.currentProject + ' controls'" matTooltipPosition="below" matTooltipShowDelay="500"
+  <button mat-icon-button
+          routerLink="/"
+          [matTooltip]="this.currentProject + ' controls'"
+          [disabled]="this.currentProject === null"
+          matTooltipPosition="below"
+          matTooltipShowDelay="500"
   >
     <mat-icon>tune</mat-icon>
   </button>

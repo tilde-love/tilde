@@ -1,20 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <VersionBase>1.0.0</VersionBase>
+	
+	<!-- RuntimeFrameworkVersion 2.1.1 /RuntimeFrameworkVersion -->
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RuntimeIdentifiers>win10-x64;ubuntu.16.04-x64;</RuntimeIdentifiers>
+	<TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
+	
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
-    <IncludeSymbols>true</IncludeSymbols>
-    <VersionSuffix>-debug-$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</VersionSuffix>
-  </PropertyGroup>
+  
+  <!--osx.10.11-x64;ubuntu.18.04-x64-->
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+    <VersionBase>1.0.0</VersionBase>
     <IncludeSymbols>false</IncludeSymbols>
     <VersionSuffix />
   </PropertyGroup>
-
+  
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
+    <VersionBase>1.0.1</VersionBase>
+    <IncludeSymbols>true</IncludeSymbols>
+    <VersionSuffix>-debug-$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</VersionSuffix>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <Version>$(VersionBase)$(VersionSuffix)</Version>
     <PackageId>$(AssemblyName)</PackageId>
@@ -52,5 +61,8 @@
     <_ContentIncludedByDefault Remove="wwwroot\assets\icons\icon-512x512.png" />
     <_ContentIncludedByDefault Remove="wwwroot\assets\icons\icon-72x72.png" />
     <_ContentIncludedByDefault Remove="wwwroot\assets\icons\icon-96x96.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="tilde.xml" />
   </ItemGroup>
 </Project>

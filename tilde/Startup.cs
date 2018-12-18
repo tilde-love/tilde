@@ -52,12 +52,12 @@ namespace Tilde
                         routes.MapHub<ModuleHub>("/api/module");
                     }
                 );
-
-            var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
-
-            app.ApplicationServices.GetService<IRuntime>()
-                    .ServerUri = new Uri(serverAddressesFeature.Addresses.FirstOrDefault() ?? "http://localhost:5000", UriKind.RelativeOrAbsolute);
             
+//            var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
+//
+//            app.ApplicationServices.GetService<IRuntime>()
+//                    .ServerUri = new Uri(serverAddressesFeature.Addresses.FirstOrDefault() ?? "http://localhost:5000", UriKind.RelativeOrAbsolute);
+//            
             
             appLifetime.ApplicationStopping.Register(
                 () => app.ApplicationServices.GetService<IRuntime>()
@@ -112,12 +112,32 @@ namespace Tilde
                 c =>
                 {
                     c.SwaggerDoc("1.0", new Info {Title = "Tilde Love", Version = "1.0"});
-                    //c.AddSecurityDefinition("Bearer", new ApiKeyScheme() { In = "header", Description = "Please insert JWT with Bearer into field", Name = "Authorization", Type = "apiKey" });
+                    //c.AddSecurityDefinition("Bearer", new ApiKeyScheme() { In = "header", Description = "Please insert JWT with Bearer into field", Name = "Authorization", ItemTypes = "apiKey" });
                 }
             );
 
-            services.AddSingleton(new ProjectManager(Configuration.GetValue("ProjectRoot", "projects")));
-            services.AddSingleton<IRuntime>(new DotnetRuntime());
+            Uri serverUri = new Uri(Configuration.GetValue($"{nameof(ServeVerb)}.{nameof(ServeVerb.ServerUri)}", "http://localhost:5000/"), UriKind.Absolute);
+            
+            Uri moduleConnectionUri = new Uri(
+                Configuration.GetValue($"{nameof(ServeVerb)}.{nameof(ServeVerb.ServerUri)}", "http://localhost:5000/")
+                    .Replace("://0.0.0.0/", "://localhost/")
+                    .Replace("://0.0.0.0:", "://localhost:")
+                    .Replace("://*/", "://localhost/")
+                    .Replace("://*:", "://localhost:"),
+                UriKind.Absolute);
+            
+            string projectsRoot = Configuration.GetValue($"{nameof(ServeVerb)}.{nameof(ServeVerb.ProjectFolder)}", "./");
+            string wwwRoot = Configuration.GetValue($"{nameof(ServeVerb)}.{nameof(ServeVerb.WwwRoot)}", "./wwwroot"); 
+
+            DirectoryInfo projectsRootInfo = new DirectoryInfo(projectsRoot);
+            DirectoryInfo wwwRootInfo = new DirectoryInfo(wwwRoot);
+            
+            Console.WriteLine($"Project root path: {projectsRootInfo.FullName}");
+            Console.WriteLine($"WWW root path: {wwwRootInfo.FullName}");
+            Console.WriteLine($"Module connection uri: {moduleConnectionUri}");
+            
+            services.AddSingleton(new ProjectManager(projectsRoot));
+            services.AddSingleton<IRuntime>(new DotnetRuntime(moduleConnectionUri));
 
             services.AddHostedService<ClientService>();
             services.AddHostedService<ModuleService>();

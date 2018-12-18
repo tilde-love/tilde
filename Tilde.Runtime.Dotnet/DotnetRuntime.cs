@@ -18,6 +18,12 @@ namespace Tilde.Runtime.Dotnet
         private RuntimeState state = RuntimeState.Running;
         private readonly object syncRoot = new object();
         private int updated;
+        private readonly Uri serverUri; 
+
+        public DotnetRuntime(Uri serverUri)
+        {
+            this.serverUri = serverUri; 
+        }
 
         /// <inheritdoc />
         public void Dispose()
@@ -34,9 +40,6 @@ namespace Tilde.Runtime.Dotnet
 
         /// <inheritdoc />
         public Project Project => activeProject;
-
-        /// <inheritdoc />
-        public Uri ServerUri { get; set; }
 
         /// <inheritdoc />
         public void Load(Project project)
@@ -137,7 +140,7 @@ namespace Tilde.Runtime.Dotnet
 
                         Interlocked.Exchange(ref projectLauncher, launcher);
 
-                        launcher.Launch(ServerUri);
+                        launcher.Launch(serverUri);
                     }
                     catch (Exception ex)
                     {
