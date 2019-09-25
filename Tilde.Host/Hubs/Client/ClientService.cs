@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Tilde.Core;
-using Tilde.Core.Controls;
 using Tilde.Core.Projects;
 using Tilde.SharedTypes;
 
@@ -18,20 +17,20 @@ namespace Tilde.Host.Hubs.Client
     {
         private readonly IHubContext<ClientHub, IClient> hubContext;
         private readonly ProjectManager projectManager;
-        private readonly IRuntime runtime;
+        //private readonly IRuntime runtime;
 
-        public ClientService(IHubContext<ClientHub, IClient> hubContext, IRuntime runtime, ProjectManager projectManager)
+        public ClientService(IHubContext<ClientHub, IClient> hubContext, ProjectManager projectManager)
         {
             this.hubContext = hubContext;
-            this.runtime = runtime;
+//            this.runtime = runtime;
             this.projectManager = projectManager;
         }
 
         /// <inheritdoc />
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            runtime.StateChanged += StateChanged;
-            runtime.ProjectChanged += ProjectChanged;
+//            runtime.StateChanged += StateChanged;
+//            runtime.ProjectChanged += ProjectChanged;
 
             projectManager.ProjectsChanged += ProjectsChanged;
             projectManager.ProjectChanged += ProjectChanged;
@@ -47,9 +46,8 @@ namespace Tilde.Host.Hubs.Client
         /// <inheritdoc />
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            runtime.StateChanged -= StateChanged;
-            runtime.ProjectChanged -= ProjectChanged;
-
+//            runtime.StateChanged -= StateChanged;
+//            runtime.ProjectChanged -= ProjectChanged;
             projectManager.ProjectsChanged -= ProjectsChanged;
             projectManager.ProjectChanged -= ProjectChanged;
             projectManager.FileChanged -= FileChanged;
@@ -69,7 +67,11 @@ namespace Tilde.Host.Hubs.Client
                 .OnControlPanel(project, panelUri, panel);
         }
 
-        private async void ControlValueChanged(Uri project, Uri control, string connectionId, object value)
+        private async void ControlValueChanged(
+            Uri project,
+            Uri control,
+            string connectionId,
+            object value)
         {
             if (connectionId != null)
             {
@@ -119,12 +121,12 @@ namespace Tilde.Host.Hubs.Client
                 .OnProjects(projects);
         }
 
-        private async void StateChanged(object sender, EventArgs e)
-        {
-            await hubContext
-                .Clients
-                .All
-                .OnStateChange(runtime.State);
-        }
+//        private async void StateChanged(object sender, EventArgs e)
+//        {
+//            await hubContext
+//                .Clients
+//                .All
+//                .OnStateChange(runtime.State);
+//        }
     }
 }

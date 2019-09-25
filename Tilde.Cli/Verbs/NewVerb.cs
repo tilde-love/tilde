@@ -11,28 +11,38 @@ namespace Tilde.Cli.Verbs
 {
     [Verb("new", HelpText = "Create a new project.")]
     public class NewVerb : RemoteVerb
-    {       
+    {
         [Usage(ApplicationAlias = "tilde")]
-        public static IEnumerable<Example> Examples 
+        public static IEnumerable<Example> Examples
         {
-            get 
+            get
             {
-                yield return new Example("Create a new project", new LogsVerb { Project = "PROJECT", ServerUri = new Uri("http://localhost:5000", UriKind.RelativeOrAbsolute) });
+                yield return new Example(
+                    "Create a new project",
+                    new LogsVerb
+                    {
+                        Project = "PROJECT",
+                        ServerUri = new Uri(
+                            "http://localhost:5678",
+                            UriKind.RelativeOrAbsolute
+                        )
+                    }
+                );
             }
         }
-        
+
         public static int New(NewVerb opts)
         {
             if (opts.ServerUri == null)
             {
-                opts.ServerUri = new Uri("http://localhost:5000/", UriKind.RelativeOrAbsolute); 
+                opts.ServerUri = new Uri("http://localhost:5678/", UriKind.RelativeOrAbsolute);
             }
-            
+
             Logo.PrintLogo();
 
             try
             {
-                Uri requestUri = new Uri(opts.ServerUri, new Uri($"api/1.0/Projects/{opts.Project}", UriKind.Relative));
+                Uri requestUri = new Uri(opts.ServerUri, new Uri($"api/1.0/projects/{opts.Project}", UriKind.Relative));
 
                 HttpStatusCode statusCode = MakeRequest("POST", requestUri)
                     .Result;

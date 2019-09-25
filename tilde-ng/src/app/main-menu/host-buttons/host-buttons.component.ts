@@ -9,7 +9,7 @@ import {ProjectDataService} from '../../scripting/project-data.service';
 export class HostButtonsComponent implements OnInit {
 
   public get currentProject(): string {
-    return this.projectDataService.currentProject;
+    return this.projectDataService.runningProject;
   }
 
   constructor(private projectDataService: ProjectDataService) {

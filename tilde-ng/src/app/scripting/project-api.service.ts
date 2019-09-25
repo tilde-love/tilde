@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import {Observable, throwError, } from 'rxjs';
-import {HttpClient, HttpEvent, HttpEventType, HttpRequest} from '@angular/common/http';
+import { Observable, throwError, } from 'rxjs';
+import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { map, filter, scan, catchError } from 'rxjs/operators';
-import {Project, Runtime} from './project-types';
+import { Project, Runtime } from './project-types';
 
 export class UploadInfo {
   fileName: string;
@@ -27,6 +27,7 @@ export class FileContents {
   public uri: string;
   public mimeType: string;
   public text: string;
+  public hash: string;
 }
 
 export class ApiError {
@@ -232,10 +233,21 @@ export class ProjectApiService {
   }
 
   public getFileText(projectUri: string, filename: string): Observable<FileContents> {
-    return this.http.get<FileContents>(`${environment.apiUri}/projects/${projectUri}/${filename}`, {})
+
+    return this.http.get(
+      `${environment.apiUri}/projects/${projectUri}/${filename}`,
+      {
+        observe: 'response',
+        responseType: 'text'
+      })
       .pipe(
-        map((result) => {
-          return result;
+        map((resp) => {
+          return {
+            uri: resp.headers.get('uri'),
+            mimeType: resp.headers.get('Content-Type'),
+            hash: resp.headers.get('hash'),
+            text: resp.body
+          };
         }),
         catchError((error) => {
           switch (error.status) {

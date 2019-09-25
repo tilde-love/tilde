@@ -26,6 +26,7 @@ export class ProjectDataService implements OnDestroy {
   private _hubConnection: HubConnection;
   private _darkTheme: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(localStorage.getItem('dark-theme') !== 'false');
   private _controlEvents: { [ uri: string ]: { count: number, subject: BehaviorSubject<ControlEvent> } } = {};
+  private _selectedProject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
 
   static getProjectTreeState(project: Project) {
     const value = localStorage.getItem(`TreeState:${project.uri}`);
@@ -45,8 +46,10 @@ export class ProjectDataService implements OnDestroy {
   public get runtime() { return this._runtime; }
   public get droppedFiles() { return this._droppedFiles; }
   public get darkTheme() { return this._darkTheme; }
+  public get selectedProject() { return this._selectedProject; }
+  public selectProject(project: string) { this._selectedProject.next(project); }
 
-  public get currentProject(): string {
+  public get runningProject(): string {
     return this._runtime.getValue().project;
   }
 
@@ -86,6 +89,7 @@ export class ProjectDataService implements OnDestroy {
     this._hubConnection.on('OnProject', (project: Project) => {
       const projects = this._projects.getValue();
       projects[project.uri] = project;
+      // console.log(`project updated: ${project.uri}`);
       this._projects.next(projects);
     });
 
@@ -125,8 +129,8 @@ export class ProjectDataService implements OnDestroy {
 
     this._hubConnection.on('OnDataSource', (project: string, uri: string, dataSource: DataSource) => {
       // this._projectUris.next(projects);
-      console.log(`OnDataSource (project: ${project}, uri: ${uri})`);
-      console.log(JSON.stringify(dataSource));
+      // console.log(`OnDataSource (project: ${project}, uri: ${uri})`);
+      // console.log(JSON.stringify(dataSource));
 
       const proj = this._projects.getValue()[project];
 

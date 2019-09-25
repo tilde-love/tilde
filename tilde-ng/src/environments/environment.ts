@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   apiUri: '/api/1.0',
-  notifyUri: 'http://localhost:5000/api/notify'
+  notifyUri: 'http://localhost:5678/api/notify'
 };
 
 /*

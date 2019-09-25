@@ -1,0 +1,97 @@
+version: 2.1
+orbs:
+  node: circleci/node@1.1.6
+jobs:
+  tilde-build:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+    steps:
+      - checkout
+      - run:
+          name: Restore
+          command: dotnet restore
+          working_directory: ./
+      - run:
+          name: Build
+          command: dotnet build --configuration Release --no-restore
+          working_directory: ./
+      - run:
+          name: Running Tests
+          command: dotnet test --configuration Release --no-restore --logger "trx"
+          working_directory: OscCoreTests
+      - run:
+          name: Convert Test Format
+          working_directory: ./
+          when: always
+          command: export PATH="$PATH:/root/.dotnet/tools" && dotnet tool install -g trx2junit && trx2junit ./**/TestResults/*.trx
+      - store_test_results:
+          path: OscCoreTests/TestResults
+      - store_artifacts:
+          path: OscCoreTests/TestResults
+          destination: TestResults
+      - run:
+          name: Pack
+          command: |
+            mkdir ../.nuget
+            dotnet pack --no-build --no-restore --configuration Release -o ../.nuget
+          working_directory: OscCore
+      - store_artifacts:
+          path: ./.nuget
+          destination: Nuget Packages
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - .nuget
+
+  publish-cli-tool:
+    docker:
+      - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
+    steps:
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: ./
+      - run:
+          name: Publish to nuget
+          command: find ./.nuget/ | grep .nupkg | while read -r package; do dotnet nuget push "$package" -s https://api.nuget.org/v3/index.json -k $NUGET_API_TOKEN; done
+          working_directory: ./
+
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - attach_workspace:
+          at: ./artifacts
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./artifacts/.nuget/  
+
+workflows:
+  version: 2
+  build-master:
+    jobs:
+      - build:
+          filters:  # required since `publish-latest` has tag filters AND requires `build`
+            tags:
+              only: /.*/
+
+      - publish-latest:
+          context: tilde-global
+          requires:
+            - build
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+
+      - publish-github-release:
+          context: tilde-global
+          requires:
+            - build
+            # - publish-latest
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/                 

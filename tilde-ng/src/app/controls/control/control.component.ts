@@ -12,6 +12,7 @@ import {
   DataSource,
   NumericRange
 } from '../../scripting/project-types';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-control',
@@ -36,9 +37,18 @@ export class ControlComponent implements OnInit, OnDestroy {
   // private _stringValue: BehaviorSubject<string> = new BehaviorSubject<string>('');
   // private _numberValue: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
+//   import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+//
+// srcData : SafeResourceUrl;
+//
+// constructor( private sanitizer: DomSanitizer ) { }
+//
+// this.srcData = this.sanitizer.bypassSecurityTrustResourceUrl(/* your base64 string in here*/);
+
   private _boolValue: boolean;
   private _stringValue: string;
   private _numberValue: number;
+  private _uriValue: SafeResourceUrl;
 
   private _source: DataSource;
   private _possibleValues: string[] = []; // BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
@@ -51,6 +61,7 @@ export class ControlComponent implements OnInit, OnDestroy {
   public get boolValue() { return this._boolValue; }
   public get stringValue() { return this._stringValue; }
   public get numberValue() { return this._numberValue; }
+  public get uriValue() { return this._uriValue; }
 
   public get possibleValues() { return this._possibleValues; }
   public get range() { return this._range; }
@@ -58,7 +69,7 @@ export class ControlComponent implements OnInit, OnDestroy {
   public value: any;
 
   public set boolValue(value: boolean) {
-    console.log('Set bool ' + value);
+    // console.log('Set bool ' + value);
     this._boolValue = value;
 
     if (isNullOrUndefined(this._source)) {
@@ -69,7 +80,7 @@ export class ControlComponent implements OnInit, OnDestroy {
   }
 
   public set numberValue(value: number) {
-    console.log('Set number ' + value);
+    // console.log('Set number ' + value);
 
     this._numberValue = value;
 
@@ -81,7 +92,7 @@ export class ControlComponent implements OnInit, OnDestroy {
   }
 
   public set stringValue(value: string) {
-    console.log('Set string ' + value);
+    // console.log('Set string ' + value);
 
     this._stringValue = value;
 
@@ -100,7 +111,9 @@ export class ControlComponent implements OnInit, OnDestroy {
   //   event.
   // }
 
-  constructor(private projectDataService: ProjectDataService, private ref: ChangeDetectorRef) { }
+  constructor(private projectDataService: ProjectDataService,
+              private ref: ChangeDetectorRef,
+              private sanitizer: DomSanitizer) { }
 
   ngOnInit() {
 
@@ -210,6 +223,11 @@ export class ControlComponent implements OnInit, OnDestroy {
       case DataSourceType.IntegerArray:
         break;
       case DataSourceType.Color:
+        this._stringValue = value.toString();
+        break;
+      case DataSourceType.Svg:
+        this._uriValue = this.sanitizer.bypassSecurityTrustResourceUrl('none.png');
+        this._uriValue = this.sanitizer.bypassSecurityTrustResourceUrl(value.toString());
         this._stringValue = value.toString();
         break;
       case DataSourceType.Image:

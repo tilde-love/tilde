@@ -20,10 +20,8 @@ import { HostButtonsComponent } from './main-menu/host-buttons/host-buttons.comp
 import { HostSettingsComponent } from './host-settings/host-settings.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { DocumentationComponent } from './documentation/documentation.component';
 import { LayoutModule } from '@angular/cdk/layout';
-import { DocumentationDashboardComponent } from './documentation-dashboard/documentation-dashboard.component';
-import {ShowdownModule} from 'ngx-showdown';
+import {MarkdownModule} from 'ngx-markdown';
 import {CreateFileDialogComponent, DeleteFileDialogComponent, ProjectViewComponent} from './scripting/project-view/project-view.component';
 import {CreateProjectDialogComponent, DeleteProjectDialogComponent} from './scripting/project-list/project-list.component';
 
@@ -35,8 +33,6 @@ import {CreateProjectDialogComponent, DeleteProjectDialogComponent} from './scri
     ProjectButtonsComponent,
     HostButtonsComponent,
     HostSettingsComponent,
-    DocumentationComponent,
-    DocumentationDashboardComponent,
   ],
   imports: [
     BrowserModule,
@@ -54,7 +50,7 @@ import {CreateProjectDialogComponent, DeleteProjectDialogComponent} from './scri
     MatToolbarModule,
     MatSidenavModule,
     MatListModule,
-    ShowdownModule,
+    MarkdownModule,
   ],
   providers: [ ProjectDataService, { provide: HAMMER_GESTURE_CONFIG, useClass: GestureConfig }, ],
   bootstrap: [ AppComponent ],

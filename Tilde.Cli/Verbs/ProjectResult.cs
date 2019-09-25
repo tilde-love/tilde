@@ -5,13 +5,14 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Tilde.Core.Controls;
+using Tilde.Core.Projects;
 
 namespace Tilde.Cli.Verbs
 {
-    class ProjectResult
+    internal class ProjectResult
     {
         [JsonProperty("controls")] public ControlGroup Controls;
-        [JsonProperty("files")] public List<Uri> Files;
+        [JsonProperty("files")] public List<ProjectFile> Files;
         [JsonProperty("uri")] public Uri Uri;
     }
 }

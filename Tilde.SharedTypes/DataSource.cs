@@ -8,26 +8,24 @@ namespace Tilde.SharedTypes
 {
     public class DataSource
     {
-        [JsonProperty("uri")]
-        public Uri Uri { get; set; } 
+        [JsonProperty("graph")] public Graph Graph;
 
-        [JsonProperty("type")]
-        public DataSourceType DataSourceType { get; set; } 
-
-        [JsonProperty("readonly")]
-        public bool Readonly { get; set; } 
-        
         /// <summary>
-        /// Numerical value range
+        ///     Numerical value range
         /// </summary>
         [JsonProperty("range")]
         public NumericRange? NumericRange;
-        
-        [JsonProperty("values")]
-        public string[] Values;
 
-        [JsonProperty("graph")] 
-        public Graph Graph;
+        [JsonProperty("values")] public string[] Values;
+
+        [JsonProperty("type")]
+        public DataSourceType DataSourceType { get; set; }
+
+        [JsonProperty("readonly")]
+        public bool Readonly { get; set; }
+
+        [JsonProperty("uri")]
+        public Uri Uri { get; set; }
 
         /// <inheritdoc />
         public override string ToString()

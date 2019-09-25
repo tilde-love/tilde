@@ -2,9 +2,9 @@
   <!-- script editor -->
   <button mat-icon-button
           class="showOver340"
-          [routerLink]="['/projects/', this.currentProject]"
-          [matTooltip]="'Edit project ' + this.currentProject"
-          [disabled]="this.currentProject === null"
+          [routerLink]="['/projects/', this.runningProject]"
+          [matTooltip]="'Edit project ' + this.runningProject"
+          [disabled]="this.runningProject === null"
           matTooltipPosition="below"
           matTooltipShowDelay="500"
   >
@@ -13,8 +13,8 @@
 
   <button mat-icon-button
           routerLink="/"
-          [matTooltip]="this.currentProject + ' controls'"
-          [disabled]="this.currentProject === null"
+          [matTooltip]="this.runningProject + ' controls'"
+          [disabled]="this.runningProject === null"
           matTooltipPosition="below"
           matTooltipShowDelay="500"
   >

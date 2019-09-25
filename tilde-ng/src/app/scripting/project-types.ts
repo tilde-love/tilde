@@ -82,10 +82,15 @@ export class ControlGroup {
   public sources: { [ uri: string]: DataSource } = {};
 }
 
+export class ProjectFile {
+  public uri: string;
+  public hash: string;
+}
+
 export class Project {
   public uri: string;
   public deleted: boolean;
-  public files: string[]; // { [name: string]: string };
+  public files: ProjectFile[]; // { [name: string]: string };
   public errors: { [ uri: string]: Error[] } = {};
   public controls: ControlGroup;
 }

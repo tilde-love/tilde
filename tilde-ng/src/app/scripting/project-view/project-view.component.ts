@@ -10,8 +10,8 @@ export enum ProjectItemType {
   ProjectNotFound = 0,
   Loading,
   FileNotFound,
-  Cover,
-  Readme,
+  Documentation,
+  Markdown,
   Script,
   Config,
   Asset,
@@ -85,6 +85,8 @@ export class ProjectViewComponent implements OnInit, OnDestroy {
 
         const projectName = params['project'];
 
+        this.projectDataService.selectProject(projectName);
+
         // const project = projects.find((proj) => proj.uri === projectName);
         const project = projects[projectName];
 
@@ -119,23 +121,79 @@ export class ProjectViewComponent implements OnInit, OnDestroy {
         if (this._getFileTextSubscription !== null) { this._getFileTextSubscription.unsubscribe(); }
 
         switch (type) {
-          case 'readme':
-            this.projectItemType.next(ProjectItemType.Cover);
-            this._getFileTextSubscription = this.projectDataService
-              .getFileText(projectName, 'readme.md', false).subscribe((fileItem) => {
-              this.text = fileItem.edited;
-              this.ref.detectChanges();
-            });
-            this.isDocument = false;
-            this.readonly = true;
-            this.mode = 'markdown';
-            break;
+          // case 'markdown':
+          //   this.projectItemType.next(ProjectItemType.Documentation);
+          //   this._getFileTextSubscription = this.projectDataService
+          //     .getFileText(projectName, 'readme.md', false).subscribe((fileItem) => {
+          //     this.text = fileItem.edited;
+          //     this.ref.detectChanges();
+          //   });
+          //   this.isDocument = false;
+          //   this.readonly = true;
+          //   this.mode = 'markdown';
+          //   break;
           case 'settings':
             this.projectItemType.next(ProjectItemType.Settings);
             this.isDocument = false;
             this.mode = 'json';
             this.text = '';
             break;
+          case '~project':
+            this.projectItemType.next(ProjectItemType.Settings);
+            this.isDocument = true;
+            this.mode = 'json';
+            this.text = '';
+            this._getFileTextSubscription = this.projectDataService
+              .getFileText(projectName, this.activePath, true)
+              .subscribe((fileItem) => {
+                this.fileItem = fileItem;
+                switch (fileItem.state) {
+                  case EditorState.NotCached:
+                    this.projectItemType.next(ProjectItemType.Loading);
+                    this.isDocument = false;
+                    break;
+                  case EditorState.NotFound:
+                  case EditorState.Cached:
+                  case EditorState.Edited:
+                  case EditorState.Superseded:
+                    this.projectItemType.next(ProjectItemType.Settings);
+                    this.isDocument = true;
+                    this.readonly = true;
+                    this.mode = 'json';
+                    this.text = fileItem.edited;
+                    break;
+                }
+              });
+            break;
+          case '~ignore':
+          case '~watch':
+            this.projectItemType.next(ProjectItemType.Settings);
+            this.isDocument = true;
+            this.mode = 'text';
+            this.text = '';
+            this._getFileTextSubscription = this.projectDataService
+              .getFileText(projectName, this.activePath, true)
+              .subscribe((fileItem) => {
+                this.fileItem = fileItem;
+                switch (fileItem.state) {
+                  case EditorState.NotCached:
+                    this.projectItemType.next(ProjectItemType.Loading);
+                    this.isDocument = false;
+                    break;
+                  case EditorState.NotFound:
+                  case EditorState.Cached:
+                  case EditorState.Edited:
+                  case EditorState.Superseded:
+                    this.projectItemType.next(ProjectItemType.Settings);
+                    this.isDocument = true;
+                    this.readonly = false;
+                    this.mode = 'text';
+                    this.text = fileItem.edited;
+                    break;
+                }
+              });
+            break;
+
           case 'log':
           case 'build':
             this.isDocument = true;
@@ -168,7 +226,7 @@ export class ProjectViewComponent implements OnInit, OnDestroy {
             const extension =
               this.activePath.lastIndexOf('.') >= 0
                 ? this.activePath.substring(this.activePath.lastIndexOf('.'), this.activePath.length).toLowerCase()
-                : null;
+                : '';
 
             this.errors = project.errors[this.activePath] ? project.errors[this.activePath] : [];
 
@@ -177,10 +235,23 @@ export class ProjectViewComponent implements OnInit, OnDestroy {
               this.isDocument = false;
               this.mode = 'csharp'; // 'typescript';
               this.readonly = true;
+
             } else if (extension === '.panel') {
               this.projectItemType.next(ProjectItemType.Panel);
               this.controlPanel = project.controls.panels[this.activePath + '.json'];
               this.isDocument = false;
+
+            } else if (extension === '') {
+              this.projectItemType.next(ProjectItemType.Documentation);
+              this._getFileTextSubscription = this.projectDataService
+                .getFileText(projectName, this.activePath + '.md', false).subscribe((fileItem) => {
+                this.text = fileItem.edited;
+                this.ref.detectChanges();
+              });
+              this.isDocument = false;
+              this.readonly = true;
+                this.mode = 'markdown';
+
             } else {
               this.projectItemType.next(ProjectItemType.Loading);
               this.isDocument = false;

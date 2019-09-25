@@ -8,15 +8,6 @@ using Tilde.SharedTypes;
 
 namespace Tilde.Module
 {
-    public interface IRunnable
-    {
-        void Pause();
-
-        void Play();
-        
-        Task Run(ModuleConnection connection, CancellationToken cancellationToken);
-    }
-
     public class ModuleRunner
     {
         public static void Run(string host, string moduleName, IRunnable runnable)
@@ -34,7 +25,7 @@ namespace Tilde.Module
                     new Uri(moduleName, UriKind.RelativeOrAbsolute),
                     exitCancellationTokenSource.Token
                 );
-                
+
                 runnableTask = RunnerTask(runnable, connection, exitCancellationTokenSource.Token);
 
                 do

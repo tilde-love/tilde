@@ -1,3 +1,6 @@
+// Copyright (c) Tilde Love Project. All rights reserved.
+// Licensed under the MIT license. See LICENSE in the project root for license information.
+
 using System;
 using System.Threading.Tasks;
 using Tilde.SharedTypes;
@@ -6,19 +9,19 @@ namespace Tilde.Module
 {
     public abstract class Control
     {
-        private ModuleConnection connection;
-        
+        protected readonly Graph Graph;
+        protected readonly NumericRange? Range;
+
         protected readonly bool Readonly;
         protected readonly DataSourceType SourceType;
         protected readonly Uri Uri;
-        protected readonly NumericRange? Range;
         protected readonly string[] Values;
-        protected readonly Graph Graph;
+        private ModuleConnection connection;
 
         public Control(
             Uri uri,
             DataSourceType sourceType,
-            bool @readonly, 
+            bool @readonly,
             NumericRange? range,
             string[] values,
             Graph graph)
@@ -34,7 +37,7 @@ namespace Tilde.Module
         public async Task Add(ModuleConnection connection)
         {
             this.connection = connection;
-            
+
             await connection.DefineDataSource(Uri, SourceType, Readonly, Range, Values, Graph);
 
             if (Readonly == false)
@@ -97,7 +100,7 @@ namespace Tilde.Module
                 DataSourceType.Boolean,
                 @readonly,
                 null,
-                new string[]
+                new[]
                 {
                     "false", "true"
                 }
@@ -107,9 +110,9 @@ namespace Tilde.Module
 
         protected override async void ValueUpdated(Uri uri, string connectionId, object value)
         {
-            if (Readonly == true)
+            if (Readonly)
             {
-                return; 
+                return;
             }
 
             switch (value)
@@ -121,23 +124,27 @@ namespace Tilde.Module
                     bool.TryParse(s, out this.value);
                     break;
             }
-            
+
             await SetValue(connectionId, this.value);
         }
     }
 
     public class IntControl : Control<int>
     {
-        public IntControl(string uri, bool @readonly, int min, int max)
-            : base(uri, DataSourceType.Integer, @readonly, new NumericRange { Maximum = max, Minimum = min, Step = 1 }, null)
+        public IntControl(
+            string uri,
+            bool @readonly,
+            int min,
+            int max)
+            : base(uri, DataSourceType.Integer, @readonly, new NumericRange {Maximum = max, Minimum = min, Step = 1}, null)
         {
         }
 
         protected override async void ValueUpdated(Uri uri, string connectionId, object value)
         {
-            if (Readonly == true)
+            if (Readonly)
             {
-                return; 
+                return;
             }
 
             switch (value)
@@ -146,26 +153,31 @@ namespace Tilde.Module
                     this.value = i;
                     break;
                 case long l:
-                    this.value = (int)l;
+                    this.value = (int) l;
                     break;
                 case float f:
-                    this.value = (int)f;
+                    this.value = (int) f;
                     break;
                 case double d:
-                    this.value = (int)d;
+                    this.value = (int) d;
                     break;
                 case string s:
                     int.TryParse(s, out this.value);
                     break;
             }
-            
+
             await SetValue(connectionId, this.value);
         }
     }
-    
+
     public class FloatControl : Control<float>
     {
-        public FloatControl(string uri, bool @readonly, float min, float max, float step)
+        public FloatControl(
+            string uri,
+            bool @readonly,
+            float min,
+            float max,
+            float step)
             : base(
                 uri,
                 DataSourceType.Float,
@@ -183,30 +195,30 @@ namespace Tilde.Module
 
         protected override async void ValueUpdated(Uri uri, string connectionId, object value)
         {
-            if (Readonly == true)
+            if (Readonly)
             {
-                return; 
+                return;
             }
 
             switch (value)
             {
                 case float f:
-                    this.value = (float)f;
+                    this.value = f;
                     break;
                 case double d:
-                    this.value = (float)d;
+                    this.value = (float) d;
                     break;
                 case int i:
-                    this.value = (float)i;
+                    this.value = i;
                     break;
                 case long l:
-                    this.value = (float)l;
+                    this.value = l;
                     break;
                 case string s:
                     float.TryParse(s, out this.value);
                     break;
             }
-            
+
             await SetValue(connectionId, this.value);
         }
     }
@@ -220,31 +232,28 @@ namespace Tilde.Module
 
         protected override async void ValueUpdated(Uri uri, string connectionId, object value)
         {
-            if (Readonly == true)
+            if (Readonly)
             {
-                return; 
+                return;
             }
 
             switch (value)
             {
                 case string s:
-                    this.value = s; 
+                    this.value = s;
                     break;
-                default:
-                    this.value = base.value.ToString();
-                    break; 
             }
-            
+
             await SetValue(connectionId, this.value);
         }
     }
-    
+
     public class EnumControl<TEnum> : Control<TEnum> where TEnum : struct, IConvertible
     {
         public EnumControl(string uri, bool @readonly)
             : base(uri, DataSourceType.Enum, @readonly, null, Enum.GetNames(typeof(TEnum)))
         {
-            if (typeof(TEnum).IsEnum == false) 
+            if (typeof(TEnum).IsEnum == false)
             {
                 throw new ArgumentException("TEnum must be an enumeration type", nameof(TEnum));
             }
@@ -252,24 +261,48 @@ namespace Tilde.Module
 
         protected override async void ValueUpdated(Uri uri, string connectionId, object value)
         {
-            if (Readonly == true)
+            if (Readonly)
             {
-                return; 
+                return;
             }
 
             switch (value)
             {
                 case string s:
-                    Enum.TryParse(s, true, out this.value); 
+                    Enum.TryParse(s, true, out this.value);
                     break;
-                default:
-                    break; 
             }
-            
+
             await SetValue(connectionId, this.value);
         }
     }
     
+    public class SvgControl : Control<string>
+    {
+        public SvgControl(string uri, bool @readonly)
+            : base(uri, DataSourceType.Svg, @readonly, null, null)
+        {
+        }
+
+        protected override async void ValueUpdated(Uri uri, string connectionId, object value)
+        {
+            if (Readonly)
+            {
+                return;
+            }
+
+            switch (value)
+            {
+                case string s:
+                    this.value = s;
+                    break;
+            }
+
+            await SetValue(connectionId, this.value);
+        }
+    }
+
+
 //    public class GraphControl : Control<Graph>
 //    {
 //        public GraphControl(string uri, bool @readonly)
@@ -300,7 +333,7 @@ namespace Tilde.Module
 //            await SetValue(connectionId, this.value);
 //        }
 //    }
-    
+
 //    public class Control<T> : Control
 //    {
 //        private T value;

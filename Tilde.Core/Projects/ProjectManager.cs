@@ -26,12 +26,13 @@ namespace Tilde.Core.Projects
         public readonly ConcurrentDictionary<Uri, Project> Projects = new ConcurrentDictionary<Uri, Project>();
         private readonly EventDebouncer eventDebouncer;
         private readonly FileSystemWatcher watcher;
+        private readonly DirectoryInfo projectRootDirectoryInfo; 
 
         public ProjectManager(string projectRoot)
         {
             ProjectRoot = projectRoot;
 
-            DirectoryInfo projectRootDirectoryInfo = new DirectoryInfo(ProjectRoot);
+            projectRootDirectoryInfo = new DirectoryInfo(ProjectRoot);
 
             if (projectRootDirectoryInfo.Exists == false)
             {
@@ -42,10 +43,10 @@ namespace Tilde.Core.Projects
 
             watcher = new FileSystemWatcher
             {
-                Path = ProjectRoot,
+                Path = projectRootDirectoryInfo.FullName,
                 EnableRaisingEvents = true,
-                NotifyFilter = NotifyFilters.DirectoryName,
-                IncludeSubdirectories = false
+                NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.LastWrite | NotifyFilters.FileName,
+                IncludeSubdirectories = true
             };
 
             watcher.Changed += OnChanged;
@@ -63,32 +64,32 @@ namespace Tilde.Core.Projects
             eventDebouncer?.Dispose();
         }
 
-        public async Task<bool> Archive(Uri project)
-        {
-            DirectoryInfo projectRoot = new DirectoryInfo(ProjectRoot);
-
-            FileInfo file = new FileInfo(
-                Path.Combine(
-                    projectRoot.FullName,
-                    $"{project}-{DateTime.UtcNow:yyyy-MM-dd-HHmmss}.zip"
-                )
-            );
-
-            byte[] bytes = await Projects[project]
-                .Pack();
-
-            using (Stream stream = File.Open(
-                file.FullName,
-                FileMode.Create,
-                FileAccess.Write,
-                FileShare.None
-            ))
-            {
-                await stream.WriteAsync(bytes, 0, bytes.Length);
-            }
-
-            return true;
-        }
+//        public async Task<bool> Archive(Uri project)
+//        {
+//            DirectoryInfo projectRoot = new DirectoryInfo(ProjectRoot);
+//
+//            FileInfo file = new FileInfo(
+//                Path.Combine(
+//                    projectRoot.FullName,
+//                    $"{project}-{DateTime.UtcNow:yyyy-MM-dd-HHmmss}.zip"
+//                )
+//            );
+//
+//            byte[] bytes = await Projects[project]
+//                .Pack();
+//
+//            using (Stream stream = File.Open(
+//                file.FullName,
+//                FileMode.Create,
+//                FileAccess.Write,
+//                FileShare.None
+//            ))
+//            {
+//                await stream.WriteAsync(bytes, 0, bytes.Length);
+//            }
+//
+//            return true;
+//        }
 
         public event ControlPanelEvent ControlPanelChanged;
         public event ControlValueEvent ControlUpdated;
@@ -112,27 +113,27 @@ namespace Tilde.Core.Projects
             return result;
         }
 
-        public async Task<bool> Restore(Uri project)
-        {
-            DirectoryInfo projectRoot = new DirectoryInfo(ProjectRoot);
-
-            FileInfo file = new FileInfo(Path.Combine(projectRoot.FullName, project.ToString()));
-
-            if (file.Exists == false)
-            {
-                return false;
-            }
-
-            Uri projectUri = new Uri(Path.GetFileNameWithoutExtension(file.Name), UriKind.RelativeOrAbsolute);
-
-            DirectoryInfo directory = new DirectoryInfo(Path.Combine(projectRoot.FullName, projectUri.ToString()));
-
-            Project result = Projects.GetOrAdd(projectUri, uri => CreateProject(directory));
-
-            await result.Unpack(File.ReadAllBytes(file.FullName));
-
-            return true;
-        }
+//        public async Task<bool> Restore(Uri project)
+//        {
+//            DirectoryInfo projectRoot = new DirectoryInfo(ProjectRoot);
+//
+//            FileInfo file = new FileInfo(Path.Combine(projectRoot.FullName, project.ToString()));
+//
+//            if (file.Exists == false)
+//            {
+//                return false;
+//            }
+//
+//            Uri projectUri = new Uri(Path.GetFileNameWithoutExtension(file.Name), UriKind.RelativeOrAbsolute);
+//
+//            DirectoryInfo directory = new DirectoryInfo(Path.Combine(projectRoot.FullName, projectUri.ToString()));
+//
+//            Project result = Projects.GetOrAdd(projectUri, uri => CreateProject(directory));
+//
+//            await result.Unpack(File.ReadAllBytes(file.FullName));
+//
+//            return true;
+//        }
 
         private void Cache()
         {
@@ -145,10 +146,10 @@ namespace Tilde.Core.Projects
 
             project.ProjectChanged += ProjectOnProjectChanged;
             project.FileChanged += ProjectOnFileChanged;
-            
+
             project.Controls.ControlPanelChanged += OnControlPanelChanged;
             project.Controls.ControlValueChanged += OnControlValueChanged;
-            project.Controls.ControlUpdated += OnControlUpdated; 
+            project.Controls.ControlUpdated += OnControlUpdated;
             project.Controls.DataSourceChanged += OnDataSourceChanged;
 
             ProjectOnProjectChanged(project);
@@ -156,14 +157,34 @@ namespace Tilde.Core.Projects
             return project;
         }
 
-        private void OnControlUpdated(Uri project, Uri control, string connectionId, object value)
-        {
-            ControlUpdated?.Invoke(project, control, connectionId, value);
-        }
-
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
-            Cache();
+            if (IsInContextOfProject(e, out Project project) == false)
+            {
+                Cache();
+                
+                return;
+            }
+
+            project?.OnAnyChanged(sender, e);
+        }
+
+        private bool IsInContextOfProject(FileSystemEventArgs e, out Project project)
+        {
+            project = null;
+
+            string pathString = e.FullPath
+                .Substring(projectRootDirectoryInfo.FullName.Length + 1)
+                .Replace('\\', '/');
+
+            string projectString = pathString
+                .Substring(0, pathString.IndexOf('/') + 1)
+                .TrimEnd('/');
+
+            Uri projectUri = new Uri(projectString, UriKind.RelativeOrAbsolute);
+
+            return Projects.TryGetValue(projectUri, out project) && 
+                   pathString.Length > projectString.Length + 1;
         }
 
         private void OnControlPanelChanged(Uri project, Uri panelUri, ControlPanel panel)
@@ -171,7 +192,20 @@ namespace Tilde.Core.Projects
             ControlPanelChanged?.Invoke(project, panelUri, panel);
         }
 
-        private void OnControlValueChanged(Uri project, Uri control, string connectionId, object value)
+        private void OnControlUpdated(
+            Uri project,
+            Uri control,
+            string connectionId,
+            object value)
+        {
+            ControlUpdated?.Invoke(project, control, connectionId, value);
+        }
+
+        private void OnControlValueChanged(
+            Uri project,
+            Uri control,
+            string connectionId,
+            object value)
         {
             ControlValueChanged?.Invoke(project, control, connectionId, value);
         }
@@ -183,39 +217,41 @@ namespace Tilde.Core.Projects
 
         private void OnDeleted(object sender, FileSystemEventArgs e)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(e.FullPath);
-
-            Uri projectUri = new Uri(directoryInfo.Name, UriKind.RelativeOrAbsolute);
-
-            if (Projects.TryGetValue(projectUri, out Project project) == false)
+            if (IsInContextOfProject(e, out Project project) == false)
             {
+                if (project == null) 
+                {
+                    return;
+                }
+
+                project.ProjectChanged -= ProjectOnProjectChanged;
+                project.FileChanged -= ProjectOnFileChanged;
+                project.Controls.ControlPanelChanged -= OnControlPanelChanged;
+                project.Controls.ControlValueChanged -= OnControlValueChanged;
+                project.Controls.ControlUpdated -= OnControlUpdated;
+                project.Controls.DataSourceChanged -= OnDataSourceChanged;
+
+                project.Dispose();
+                project.Deleted = true;
+
+                Cache();
+                
                 return;
             }
 
-            project.ProjectChanged -= ProjectOnProjectChanged;
-            project.FileChanged -= ProjectOnFileChanged;
-            project.Controls.ControlPanelChanged -= OnControlPanelChanged;
-            project.Controls.ControlValueChanged -= OnControlValueChanged;
-            project.Controls.ControlUpdated -= OnControlUpdated; 
-            project.Controls.DataSourceChanged -= OnDataSourceChanged;
-
-            project.Dispose();
-            project.Deleted = true;
-
-            Cache();
+            project?.OnDeleted(sender, e);
         }
 
         private void OnRenamed(object sender, RenamedEventArgs e)
         {
-//            DirectoryInfo oldDirectoryInfo = new DirectoryInfo(e.OldFullPath);
-//
-//            Uri projectUri = new Uri(oldDirectoryInfo.Name, UriKind.RelativeOrAbsolute);
-//
-//            if (Projects.TryGetValue(projectUri, out Project project) == false)
-//            {
-//                return;
-//            }  
-            Cache();
+            if (IsInContextOfProject(e, out Project project) == false)
+            {
+                Cache();
+                
+                return;
+            }
+
+            project?.OnRenamed(sender, e);
         }
 
         private void ProjectOnFileChanged(Uri project, Uri file, string hash)

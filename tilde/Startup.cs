@@ -3,22 +3,20 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using Tilde.Core;
-using Tilde.Host;
 using Tilde.Core.Projects;
-using Tilde.Host.Hubs;
+using Tilde.Core.Templates;
+using Tilde.Core.Work;
+using Tilde.Host;
 using Tilde.Host.Hubs.Client;
 using Tilde.Host.Hubs.Module;
-using Tilde.Runtime.Dotnet;
 
 namespace Tilde
 {
@@ -31,18 +29,23 @@ namespace Tilde
             Configuration = configuration;
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime)
+        // ReSharper disable once UnusedMember.Global
+        public void Configure(
+            IApplicationBuilder app,
+            IHostingEnvironment env,
+            IApplicationLifetime appLifetime,
+            TemplateSources templateSources)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseDefaultFiles()
+            app .UseDefaultFiles()
                 .UseStaticFiles()
                 //.UseAuthentication()
                 .UseSwagger()
-                .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/1.0/swagger.json", "Zero Core API"); })
+                .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/1.0/swagger.json", "Tilde Love API"); })
                 .UseMvcWithDefaultRoute()
                 .UseCors("CorsPolicy")
                 .UseSignalR(
@@ -52,21 +55,32 @@ namespace Tilde
                         routes.MapHub<ModuleHub>("/api/module");
                     }
                 );
-            
+
 //            var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
 //
 //            app.ApplicationServices.GetService<IRuntime>()
-//                    .ServerUri = new Uri(serverAddressesFeature.Addresses.FirstOrDefault() ?? "http://localhost:5000", UriKind.RelativeOrAbsolute);
+//                    .ServerUri = new Uri(serverAddressesFeature.Addresses.FirstOrDefault() ?? "http://localhost:5678", UriKind.RelativeOrAbsolute);
 //            
-            
+
             appLifetime.ApplicationStopping.Register(
-                () => app.ApplicationServices.GetService<IRuntime>()
-                    .Dispose()
+                () =>
+                {
+                    // app.ApplicationServices.GetService<Boss>().Dispose();
+                    templateSources.Write();
+                }
             );
+            
+            PathString apiPath = new PathString("/api");
 
             app.Run(
                 async context =>
                 {
+                    if (context.Request.Path.StartsWithSegments(apiPath, StringComparison.InvariantCulture))
+                    {
+                        context.Response.StatusCode = 404;
+                        return;
+                    }
+
                     context.Response.ContentType = "text/html";
                     await context.Response.SendFileAsync(Path.Combine(env.WebRootPath, "index.html"));
                 }
@@ -90,7 +104,7 @@ namespace Tilde
                                 .AllowAnyHeader()
                                 .AllowCredentials()
                                 //.WithOrigins("http://localhost:4200")
-                                //.WithOrigins("http://localhost:5000")
+                                //.WithOrigins("http://localhost:5678")
                                 .AllowAnyOrigin()
                     );
                 }
@@ -116,29 +130,40 @@ namespace Tilde
                 }
             );
 
-            Uri serverUri = new Uri(Configuration.GetValue($"{nameof(ServeVerb)}.{nameof(ServeVerb.ServerUri)}", "http://localhost:5000/"), UriKind.Absolute);
-            
             Uri moduleConnectionUri = new Uri(
-                Configuration.GetValue($"{nameof(ServeVerb)}.{nameof(ServeVerb.ServerUri)}", "http://localhost:5000/")
+                Configuration.GetValue($"Tilde.ServerUri", "http://localhost:5678/")
                     .Replace("://0.0.0.0/", "://localhost/")
                     .Replace("://0.0.0.0:", "://localhost:")
                     .Replace("://*/", "://localhost/")
                     .Replace("://*:", "://localhost:"),
-                UriKind.Absolute);
-            
-            string projectsRoot = Configuration.GetValue($"{nameof(ServeVerb)}.{nameof(ServeVerb.ProjectFolder)}", "./");
-            string wwwRoot = Configuration.GetValue($"{nameof(ServeVerb)}.{nameof(ServeVerb.WwwRoot)}", "./wwwroot"); 
+                UriKind.Absolute
+            );
+
+            string projectsRoot = Configuration.GetValue($"Tilde.ProjectFolder", "./");
+            string wwwRoot = Configuration.GetValue($"Tilde.WwwRoot", "./wwwroot");
+            string templatesRoot = Configuration.GetValue($"Tilde.Templates", "./templates");
 
             DirectoryInfo projectsRootInfo = new DirectoryInfo(projectsRoot);
             DirectoryInfo wwwRootInfo = new DirectoryInfo(wwwRoot);
-            
+            DirectoryInfo templatesRootInfo = new DirectoryInfo(templatesRoot);
+
             Console.WriteLine($"Project root path: {projectsRootInfo.FullName}");
+            Console.WriteLine($"Templates root path: {templatesRootInfo.FullName}");
             Console.WriteLine($"WWW root path: {wwwRootInfo.FullName}");
             Console.WriteLine($"Module connection uri: {moduleConnectionUri}");
+
+            TemplateSources templateSources = new TemplateSources(templatesRootInfo); 
+            
+            //templateSources.Add(new Uri("file:///D:/code/tilde-love/packing-test/index.json", UriKind.RelativeOrAbsolute));
+            
+            templateSources.Cache();
             
             services.AddSingleton(new ProjectManager(projectsRoot));
-            services.AddSingleton<IRuntime>(new DotnetRuntime(moduleConnectionUri));
-
+            services.AddSingleton(templateSources);
+            //services.AddSingleton<IRuntime>(new DotnetRuntime(moduleConnectionUri));
+            services.AddSingleton<Boss>(new Boss());
+            
+            services.AddHostedService<BossService>();
             services.AddHostedService<ClientService>();
             services.AddHostedService<ModuleService>();
         }

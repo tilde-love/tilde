@@ -25,6 +25,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
 
     this.projectDataService.loadProjects();
     this.projectDataService.getRuntime();
+    this.projectDataService.selectProject(null);
 
     this._droppedFilesSubscription = this.projectDataService.droppedFiles.subscribe((file) => {
 
@@ -50,7 +51,7 @@ export class ProjectListComponent implements OnInit, OnDestroy {
   }
 
   public get currentProject(): string {
-    return this.projectDataService.currentProject;
+    return this.projectDataService.runningProject;
   }
 
   getFileUrl(projectUri: string): string {

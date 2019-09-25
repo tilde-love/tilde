@@ -4,8 +4,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
-using Tilde.Core.Controls;
 using Tilde.Core.Projects;
 using Tilde.SharedTypes;
 
@@ -20,7 +18,38 @@ namespace Tilde.Host.Hubs.Module
         {
             this.projectManager = projectManager;
         }
-        
+
+        public async Task DefineDataSource(
+            Uri project,
+            Uri uri,
+            DataSourceType type,
+            bool @readonly,
+            NumericRange? range,
+            string[] values,
+            Graph graph)
+        {
+            Console.WriteLine($"DefineDataSource: {project}/{uri} {type} {(@readonly ? "readonly" : "")}");
+
+            if (projectManager.Projects.TryGetValue(project, out Project proj) == false)
+            {
+                return;
+            }
+
+            await proj.Controls.DefineDataSource(uri, type, @readonly, range, values, graph);
+        }
+
+        public async Task DeleteDataSource(Uri project, Uri uri)
+        {
+            Console.WriteLine($"DeleteDataSource: {project}/{uri}");
+
+            if (projectManager.Projects.TryGetValue(project, out Project proj) == false)
+            {
+                return;
+            }
+
+            await proj.Controls.DeleteDataSource(uri);
+        }
+
         /// <inheritdoc />
         public override async Task OnConnectedAsync()
         {
@@ -51,50 +80,23 @@ namespace Tilde.Host.Hubs.Module
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task SetValue(Uri project, Uri uri, string connectionId, object value)
+        public async Task SetValue(
+            Uri project,
+            Uri uri,
+            string connectionId,
+            object value)
         {
 //            Console.WriteLine($"SetValue: {project}/{uri} ({(connectionId ?? "NULL")})");
 //            Console.WriteLine(JsonConvert.SerializeObject(value, Formatting.None));
-            
+
             if (projectManager.Projects.TryGetValue(project, out Project proj) == false)
             {
-                return; 
+                return;
             }
 
             await proj.Controls.SetValue(uri, connectionId, value);
         }
 
-        public async Task DefineDataSource(
-            Uri project,
-            Uri uri,
-            DataSourceType type,
-            bool @readonly,
-            NumericRange? range,
-            string[] values,
-            Graph graph)
-        {
-            Console.WriteLine($"DefineDataSource: {project}/{uri} {type} {(@readonly ? "readonly" : "")}");
-            
-            if (projectManager.Projects.TryGetValue(project, out Project proj) == false)
-            {
-                return; 
-            }
-
-            await proj.Controls.DefineDataSource(uri, type, @readonly, range, values, graph); 
-        }
-
-        public async Task DeleteDataSource(Uri project, Uri uri)
-        {
-            Console.WriteLine($"DeleteDataSource: {project}/{uri}");
-            
-            if (projectManager.Projects.TryGetValue(project, out Project proj) == false)
-            {
-                return; 
-            }
-
-            await proj.Controls.DeleteDataSource(uri); 
-        }
-        
 //        public async Task SendMessage(string user, string message)
 //        {
 //            Console.WriteLine("SendMessage!! " + user);

@@ -8,10 +8,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite.Internal.IISUrlRewrite;
 using Microsoft.AspNetCore.SignalR;
 using Tilde.Core;
 using Tilde.Core.Projects;
-using Tilde.Host.Hubs;
 using Tilde.Host.Hubs.Client;
 
 namespace Tilde.Host.Controllers
@@ -30,6 +30,7 @@ namespace Tilde.Host.Controllers
 
         // create / upload
         [HttpPost("projects/{project}")]
+        [HttpPut("projects/{project}")]
         public async Task<IActionResult> Create(Uri project)
         {
             if (projectManager.Projects.TryGetValue(project, out Project projectObject))
@@ -44,7 +45,7 @@ namespace Tilde.Host.Controllers
 
         // create / upload
         [HttpPost("projects/{project}/{*file}")]
-        public async Task<IActionResult> CreateFile(Uri project, Uri file, [FromForm] string content)
+        public async Task<IActionResult> PostFile(Uri project, Uri file, [FromForm] string content)
         {
             if (projectManager.Projects.TryGetValue(project, out Project projectObject) == false)
             {
@@ -54,6 +55,28 @@ namespace Tilde.Host.Controllers
             await projectObject.WriteFile(file, content);
 
             return Ok();
+        }
+
+        [HttpPut("projects/{project}/{*file}")]
+        public async Task<IActionResult> PutFile(Uri project, Uri file)
+        {
+            try
+            {
+                Project projectObject = projectManager.Read(project);
+
+                using (MemoryStream ms = new MemoryStream(2048))
+                {
+                    await Request.Body.CopyToAsync(ms);
+
+                    await projectObject.WriteFile(file, ms.ToArray());
+                }
+
+                return StatusCode(StatusCodes.Status201Created);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
 
         // delete
@@ -88,54 +111,104 @@ namespace Tilde.Host.Controllers
         [HttpGet("projects/{project}/{*file}")]
         public async Task<IActionResult> GetFile(Uri project, Uri file)
         {
-            if (projectManager.Projects.TryGetValue(project, out Project projectObject) == false)
+            try
             {
-                return NotFound();
-            }
+                if (projectManager.Projects.TryGetValue(project, out Project projectObject) == false)
+                {
+                    return NotFound();
+                }
 
-            if (projectObject.Files.ContainsKey(file) == false
-                && file.ToString() != "build"
-                && file.ToString() != "log")
+                if (projectObject.ProjectFiles.ContainsKey(file) == false
+                    && file.ToString() != "build"
+                    && file.ToString() != "log")
+                {
+                    return NotFound();
+                }
+
+                string extension = Path.GetExtension(file.ToString())
+                    .ToLowerInvariant();
+
+                string mimeType = MimeTypes.Types.GetOrAdd(extension, "application/octet-stream");
+
+                Response.Headers.Add("uri", $"project/{project}/{file}");
+
+                if (projectObject.ProjectFiles.TryGetValue(file, out ProjectFile projectFile) == true)
+                {
+                    Response.Headers.Add(
+                        "hash",
+                        projectObject.ProjectFiles[file]
+                            .Hash
+                    );
+                }
+
+                if (file.ToString() == "log")
+                {
+                    return File(System.Text.Encoding.UTF8.GetBytes( projectObject.TailLogFile()), mimeType);
+                }
+
+                return File(projectObject.ReadFileBytes(file), mimeType);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
-
-            string extension = Path.GetExtension(file.ToString())
-                .ToLowerInvariant();
-
-            string mimeType = MimeTypes.Types.GetOrAdd(extension, "application/octet-stream");
-
-            if (file.ToString() == "log")
-            {
-                return Json(new {uri = $"project/{project}/{file}", text = projectObject.TailLogFile(), mimeType});
-            }
-
-            return Json(new {uri = $"project/{project}/{file}", text = projectObject.ReadFileString(file), mimeType});
         }
-
-        // get file
-        [HttpGet("files/{project}/{*file}")]
-        public async Task<IActionResult> GetFileRaw(Uri project, Uri file)
+        
+        [HttpHead("projects/{project}/{*file}")]
+        public async Task<IActionResult> GetFileHead(Uri project, Uri file)
         {
             if (projectManager.Projects.TryGetValue(project, out Project projectObject) == false)
             {
                 return NotFound();
             }
 
-            if (projectObject.Files.ContainsKey(file) == false
+            if (projectObject.ProjectFiles.ContainsKey(file) == false
                 && file.ToString() != "build"
                 && file.ToString() != "log")
             {
                 return NotFound();
             }
 
-            string extension = Path.GetExtension(file.ToString())
-                .ToLowerInvariant();
-
+            string extension = Path.GetExtension(file.ToString()).ToLowerInvariant();
             string mimeType = MimeTypes.Types.GetOrAdd(extension, "application/octet-stream");
 
-            return File(projectObject.ReadFileBytes(file), mimeType);
+            Response.Headers.Add("Content-Type", mimeType);
+            Response.Headers.Add("uri", $"project/{project}/{file}");
+
+            if (projectObject.ProjectFiles.TryGetValue(file, out ProjectFile projectFile) == true)
+            {
+                Response.Headers.Add(
+                    "hash",
+                    projectObject.ProjectFiles[file].Hash
+                );
+            }
+
+            return Ok(); 
         }
+
+//        // get file
+//        [HttpGet("files/{project}/{*file}")]
+//        public async Task<IActionResult> GetFileRaw(Uri project, Uri file)
+//        {
+//            if (projectManager.Projects.TryGetValue(project, out Project projectObject) == false)
+//            {
+//                return NotFound();
+//            }
+//
+//            if (projectObject.ProjectFiles.ContainsKey(file) == false
+//                && file.ToString() != "build"
+//                && file.ToString() != "log")
+//            {
+//                return NotFound();
+//            }
+//
+//            string extension = Path.GetExtension(file.ToString())
+//                .ToLowerInvariant();
+//
+//            string mimeType = MimeTypes.Types.GetOrAdd(extension, "application/octet-stream");
+//            
+//            return File(projectObject.ReadFileBytes(file), mimeType);
+//        }
 
         // get project
         [HttpGet("projects/{project}")]
@@ -210,7 +283,8 @@ namespace Tilde.Host.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
-
+        
+        
         // Upload project archive
         [HttpPost("files/project")]
         public async Task<IActionResult> UploadProjectArchive([FromForm] IFormFile file)

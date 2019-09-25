@@ -1,67 +1,64 @@
 ﻿// Copyright (c) Tilde Love Project. All rights reserved.
 // Licensed under the MIT license. See LICENSE in the project root for license information.
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
 namespace Tilde.SharedTypes
 {
     /// <summary>
-    /// Control types
+    ///     Control types
     /// </summary>
     // [JsonConverter(typeof(StringEnumConverter))]
     public enum ControlType
     {
         /// <summary>
-        /// Toggle 
+        ///     Toggle
         /// </summary>
-        Toggle,   
-        
+        Toggle,
+
         /// <summary>
-        /// Checkbox or checkbox group
+        ///     Checkbox or checkbox group
         /// </summary>
-        Checkbox, 
-        
+        Checkbox,
+
         /// <summary>
-        /// Radio button group 
+        ///     Radio button group
         /// </summary>
-        RadioButton, 
-        
+        RadioButton,
+
         /// <summary>
-        /// Drop down select box
+        ///     Drop down select box
         /// </summary>
-        SelectBox, 
-        
+        SelectBox,
+
         /// <summary>
-        /// Chips selector 
+        ///     Chips selector
         /// </summary>
         Chips,
-        
+
         /// <summary>
-        /// Text box
+        ///     Text box
         /// </summary>
         TextBox,
-        
+
         /// <summary>
-        /// Value as a string
+        ///     Value as a string
         /// </summary>
-        Value, 
-        
+        Value,
+
         /// <summary>
-        /// Value slider
+        ///     Value slider
         /// </summary>
-        Slider, 
-        
+        Slider,
+
         Graph,
-        
+
         Svg,
-        
-        Color, 
-        
-        Image, 
-        
-        Markdown, 
-        
-        Break, 
+
+        Color,
+
+        Image,
+
+        Markdown,
+
+        Break
     }
 }

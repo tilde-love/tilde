@@ -13,7 +13,7 @@ export class AppComponent implements OnDestroy {
   private _themeSubscription: Subscription;
 
   public get currentProject(): string {
-    return this.projectDataService.currentProject;
+    return this.projectDataService.runningProject;
   }
 
   constructor(private projectDataService: ProjectDataService) {

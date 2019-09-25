@@ -9,12 +9,12 @@ namespace Tilde.Host.Controllers
     [Route("api/1.0/state")]
     public class StateController : Controller
     {
-        private readonly IRuntime runtime;
-
-        public StateController(IRuntime runtime)
-        {
-            this.runtime = runtime;
-        }
+//        private readonly IRuntime runtime;
+//
+//        public StateController(IRuntime runtime)
+//        {
+//            this.runtime = runtime;
+//        }
 
 //        [HttpGet("error")]
 //        public IActionResult GetError()

@@ -1,1 +1,5 @@
-dotnet publish --no-restore --output ../../builds/tilde --configuration Release --runtime win10-x64 
+rem dotnet publish --no-restore --output ../../builds/tilde --configuration Release --runtime win10-x64
+
+dotnet tool uninstall -g tilde
+dotnet pack -c Release
+dotnet tool install -g --add-source ../../.package-store tilde 

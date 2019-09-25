@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Connections;
@@ -12,17 +11,17 @@ using Tilde.SharedTypes;
 
 namespace Tilde.Module
 {
-    public delegate void ValueUpdated(Uri uri, string connectionId, object value); 
-    
+    public delegate void ValueUpdated(Uri uri, string connectionId, object value);
+
     public class ModuleConnection
     {
-        private readonly Uri uri;
-        private readonly Uri moduleName;
         private readonly CancellationToken cancellationToken;
         private readonly HubConnection connection;
-        private bool disposing = false;
-        private IDisposable controlUpdated;  
-        private ConcurrentDictionary<Uri, ValueUpdated> valueHandlers = new ConcurrentDictionary<Uri, ValueUpdated>();
+        private readonly IDisposable controlUpdated;
+        private bool disposing;
+        private readonly Uri moduleName;
+        private readonly Uri uri;
+        private readonly ConcurrentDictionary<Uri, ValueUpdated> valueHandlers = new ConcurrentDictionary<Uri, ValueUpdated>();
 
         public ModuleConnection(Uri uri, Uri moduleName, CancellationToken cancellationToken)
         {
@@ -33,22 +32,77 @@ namespace Tilde.Module
             connection = new HubConnectionBuilder()
                 .WithUrl($"{uri}?m={moduleName}", HttpTransportType.WebSockets)
                 .Build();
-            
+
             connection.Closed += ConnectionOnClosed;
-                        
+
             controlUpdated = connection.On<Uri, string, object>("OnValueChanged", OnValueChanged);
         }
 
-        private void OnValueChanged(Uri uri, string connectionId, object value)
+        public async Task DefineDataSource(
+            Uri uri,
+            DataSourceType type,
+            bool @readonly,
+            NumericRange? range,
+            string[] values,
+            Graph graph)
         {
-            Console.WriteLine($"OnValueChanged: {uri}, {connectionId}, {value}");
+            await connection.InvokeAsync(
+                "DefineDataSource",
+                moduleName,
+                uri,
+                type,
+                @readonly,
+                range,
+                values,
+                graph,
+                cancellationToken
+            );
+        }
 
-            if (valueHandlers.TryGetValue(uri, out ValueUpdated updated) == false)
+        public async Task DeleteDataSource(Uri uri)
+        {
+            await connection.InvokeAsync("DeleteDataSource", moduleName, uri, CancellationToken.None);
+        }
+
+        public async Task DisposeAsync()
+        {
+            disposing = true;
+
+            controlUpdated.Dispose();
+
+            await connection.DisposeAsync();
+        }
+
+        public void RegisterValueChange(Uri uri, ValueUpdated callback)
+        {
+            if (valueHandlers.TryAdd(uri, callback) == false)
             {
-                return; 
+                throw new Exception($"Value handler for {uri} has already been registered.");
             }
+        }
 
-            updated(uri, connectionId, value); 
+        public async Task SetValue(Uri uri, string connectionId, object value)
+        {
+            await connection.InvokeAsync("SetValue", moduleName, uri, connectionId, value, cancellationToken);
+        }
+
+        public async Task StartAsync()
+        {
+            await connection.StartAsync(cancellationToken);
+
+            Console.WriteLine($"Started connection to {uri}");
+        }
+
+        public async Task StopAsync()
+        {
+            await connection.StopAsync(cancellationToken);
+
+            Console.WriteLine($"Stopped connection to {uri}");
+        }
+
+        public void UnregisterValueChange(Uri uri)
+        {
+            valueHandlers.TryRemove(uri, out ValueUpdated _);
         }
 
         private async Task ConnectionOnClosed(Exception ex)
@@ -60,63 +114,24 @@ namespace Tilde.Module
                 Console.WriteLine(ex.ToString());
             }
 
-            if (disposing == true)
+            if (disposing)
             {
-                return; 
+                return;
             }
 
             await connection.StartAsync(cancellationToken);
         }
 
-        public async Task StartAsync()
+        private void OnValueChanged(Uri uri, string connectionId, object value)
         {
-            await connection.StartAsync(cancellationToken);
-        
-            Console.WriteLine($"Started connection to {uri}");
-        }
-        
-        public async Task StopAsync()
-        {
-            await connection.StopAsync(cancellationToken);
-            
-            Console.WriteLine($"Stopped connection to {uri}");
-        }
-        
-        public async Task DisposeAsync()
-        {
-            disposing = true;
+            Console.WriteLine($"OnValueChanged: {uri}, {connectionId}, {value}");
 
-            controlUpdated.Dispose();
-            
-            await connection.DisposeAsync();           
-        }
-        
-        public async Task SetValue(Uri uri, string connectionId, object value)
-        {
-            await connection.InvokeAsync("SetValue", moduleName, uri, connectionId, value, cancellationToken);
-        }
-
-        public async Task DefineDataSource(Uri uri, DataSourceType type, bool @readonly, NumericRange? range, string[] values, Graph graph)
-        {
-            await connection.InvokeAsync("DefineDataSource", moduleName, uri, type, @readonly, range, values, graph, cancellationToken);
-        }
-
-        public async Task DeleteDataSource(Uri uri)
-        {
-            await connection.InvokeAsync("DeleteDataSource", moduleName, uri, CancellationToken.None);
-        }
-
-        public void RegisterValueChange(Uri uri, ValueUpdated callback)
-        {
-            if (valueHandlers.TryAdd(uri, callback) == false)
+            if (valueHandlers.TryGetValue(uri, out ValueUpdated updated) == false)
             {
-                throw new Exception($"Value handler for {uri} has already been registered.");
+                return;
             }
-        }
 
-        public void UnregisterValueChange(Uri uri)
-        {
-            valueHandlers.TryRemove(uri, out ValueUpdated _); 
+            updated(uri, connectionId, value);
         }
     }
 }

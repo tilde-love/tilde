@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tilde.Core;
 using Tilde.Core.Projects;
+using Tilde.Core.Work;
 
 namespace Tilde.Host.Controllers
 {
@@ -14,12 +15,15 @@ namespace Tilde.Host.Controllers
     public class ScriptController : Controller
     {
         private readonly ProjectManager projectManager;
-        private readonly IRuntime runtime;
 
-        public ScriptController(ProjectManager projectManager, IRuntime runtime)
+        private readonly Boss boss;
+//        private readonly IRuntime runtime;
+
+        public ScriptController(ProjectManager projectManager, Boss boss) // , IRuntime runtime)
         {
             this.projectManager = projectManager;
-            this.runtime = runtime;
+            this.boss = boss;
+//            this.runtime = runtime;
         }
 
         [HttpGet("script/runtime")]
@@ -28,9 +32,9 @@ namespace Tilde.Host.Controllers
             return Ok(
                 new
                 {
-                    state = runtime.State,
+                    state = RuntimeState.Stopped, //  runtime.State,
                     //isInError = runtime.IsInError,
-                    project = runtime.Project?.Uri.ToString() ?? null
+                    project = (string) null // runtime.Project?.Uri.ToString() ?? null
                 }
             );
         }
@@ -38,7 +42,7 @@ namespace Tilde.Host.Controllers
         [HttpGet("script/runtime/pause")]
         public async Task<IActionResult> Pause()
         {
-            runtime.State = RuntimeState.Paused;
+            // runtime.State = RuntimeState.Paused;
 
             return Ok();
         }
@@ -46,19 +50,19 @@ namespace Tilde.Host.Controllers
         [HttpGet("script/runtime/reload")]
         public async Task<IActionResult> Reload()
         {
-            Uri project = runtime.Project?.Uri;
-
-            if (project == null)
-            {
-                return StatusCode(StatusCodes.Status404NotFound);
-            }
-
-            if (projectManager.Projects.TryGetValue(project, out Project projectObject) == false)
-            {
-                return StatusCode(StatusCodes.Status404NotFound);
-            }
-
-            runtime.Load(projectObject);
+//            Uri project = runtime.Project?.Uri;
+//
+//            if (project == null)
+//            {
+//                return StatusCode(StatusCodes.Status404NotFound);
+//            }
+//
+//            if (projectManager.Projects.TryGetValue(project, out Project projectObject) == false)
+//            {
+//                return StatusCode(StatusCodes.Status404NotFound);
+//            }
+//
+//            runtime.Load(projectObject);
 
             return Ok();
         }
@@ -66,7 +70,7 @@ namespace Tilde.Host.Controllers
         [HttpGet("script/runtime/run")]
         public async Task<IActionResult> Run()
         {
-            runtime.State = RuntimeState.Running;
+//            runtime.State = RuntimeState.Running;
 
             return Ok();
         }
@@ -74,12 +78,17 @@ namespace Tilde.Host.Controllers
         [HttpGet("script/runtime/run/{project}")]
         public async Task<IActionResult> RunProject(Uri project)
         {
+            
             if (projectManager.Projects.TryGetValue(project, out Project projectObject) == false)
             {
                 return StatusCode(StatusCodes.Status404NotFound);
             }
 
-            runtime.Load(projectObject);
+            boss.Stop(project.ToString());
+            
+            boss.Start(projectObject, project.ToString());
+            
+//            runtime.Load(projectObject);
 
             return Ok();
         }
@@ -87,7 +96,7 @@ namespace Tilde.Host.Controllers
         [HttpGet("script/runtime/stop")]
         public async Task<IActionResult> Stop()
         {
-            runtime.State = RuntimeState.Stopped;
+//            runtime.State = RuntimeState.Stopped;
 
             return Ok();
         }

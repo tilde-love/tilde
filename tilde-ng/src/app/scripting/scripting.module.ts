@@ -8,7 +8,8 @@ import {CreateProjectDialogComponent, DeleteProjectDialogComponent, ProjectListC
 import { AppMaterialModule } from '../app-material.module';
 import { RouterModule} from '@angular/router';
 import { ProjectSettingsComponent } from './project-settings/project-settings.component';
-import {ShowdownModule} from 'ngx-showdown';
+// import {ShowdownModule} from 'ngx-showdown';
+import { MarkdownModule } from 'ngx-markdown';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import { DropzoneDirective } from './dropzone.directive';
@@ -20,7 +21,8 @@ import {ControlsModule} from '../controls/controls.module';
     AceEditorModule,
     AppMaterialModule,
     RouterModule,
-    ShowdownModule,
+    // ShowdownModule,
+    MarkdownModule.forRoot(),
     FormsModule,
     HttpClientModule,
     ControlsModule
