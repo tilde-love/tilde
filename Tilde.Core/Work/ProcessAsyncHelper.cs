@@ -18,12 +18,13 @@ namespace Tilde.Core.Work
             Dictionary<string, string> environment,
             Action<string> stdOut,
             Action<string> stdError,
-            WrapperStreamWriter stdIn,
+            AsyncQueue stdIn,
+            Action<LaborState> updateState,
             int timeout, 
             CancellationToken cancellationToken)
         {
             int? result = null;
-            
+
             using (Process process = new Process())
             {
                 process.StartInfo.FileName = executable;
@@ -39,80 +40,79 @@ namespace Tilde.Core.Work
                 {
                     process.StartInfo.Environment[environmentVariable.Key] = environmentVariable.Value; 
                 }
+
+                Console.WriteLine($" $ {process.StartInfo.WorkingDirectory} {process.StartInfo.FileName} {process.StartInfo.Arguments}");
                 
-                async Task<bool> ReadStreamReaderAsync(Process p, StreamReader reader, Action<string> @out, CancellationToken ct)
+                bool isStarted = process.Start();
+
+                if (!isStarted)
                 {
-                    try
-                    {
-                        char[] buffer = new char[1024 * 4];
-
-                        while (ct.IsCancellationRequested == false && p.HasExited == false)
-                        {
-                            int count = await reader.ReadAsync(buffer, 0, buffer.Length);
-                            //int count = reader.Read(buffer, 0, buffer.Length);
-
-                            if (count == 0)
-                            {
-                                return true;
-                            }
-
-                            @out.Invoke(new string(buffer, 0, count));
-                        }
-
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("READ STREAM ================================================");
-                        Console.WriteLine(ex.ToString());
-                        Console.WriteLine("READ STREAM ================================================");
-                        throw; 
-                    }
-                }
-                
-                try
-                {
-                    Console.WriteLine($" $ {process.StartInfo.WorkingDirectory} {process.StartInfo.FileName} {process.StartInfo.Arguments}");
-                    
-                    bool isStarted = process.Start();
-
-                    if (!isStarted)
-                    {
-                        result = process.ExitCode;
-                        
-                        return result;
-                    }
-
-                    stdIn.Wrapped = process.StandardInput; 
-
-                    // Create task to wait for process exit and closing all output streams
-                    Task<bool[]> processTask = Task.WhenAll(
-                        WaitForExitAsync(process, timeout, cancellationToken),
-                        ReadStreamReaderAsync(process, process.StandardOutput, stdOut, cancellationToken),
-                        ReadStreamReaderAsync(process, process.StandardError, stdError, cancellationToken)
-                    );
-
-                    bool cancelled = (await processTask)[0];
+                    updateState(LaborState.Exited); 
                     
                     result = process.ExitCode;
+                    
+                    return result;
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("PROCESS ================================================");
-                    Console.WriteLine(ex.ToString());
-                    Console.WriteLine("PROCESS ================================================");
-                    throw; 
-                }
-                finally
-                {
-                    stdIn.Wrapped = null;
-                }
+                
+                updateState(LaborState.Running); 
+                
+                // Create task to wait for process exit and closing all output streams
+                Task processTask = Task.WhenAll(
+                    WaitForExitAsync(process, updateState, timeout, cancellationToken),
+                    WriteStreamWriterAsync(process, process.StandardInput, stdIn, cancellationToken),
+                    ReadStreamReaderAsync(process, process.StandardOutput, stdOut, cancellationToken),
+                    ReadStreamReaderAsync(process, process.StandardError, stdError, cancellationToken)
+                );
+
+                await processTask; 
+
+                result = process.ExitCode;
             }
 
             return result;
         }
-        
-        private static async Task<bool> WaitForExitAsync(Process process, int timeout, CancellationToken cancellationToken)
+
+        private static async Task ReadStreamReaderAsync(
+            Process p,
+            StreamReader reader,
+            Action<string> @out,
+            CancellationToken ct)
+        {
+            char[] buffer = new char[1024 * 4];
+
+            while (ct.IsCancellationRequested == false && p.HasExited == false)
+            {
+                int count = await reader.ReadAsync(buffer, 0, buffer.Length);
+
+                if (count == 0)
+                {
+                    return;
+                }
+
+                @out.Invoke(new string(buffer, 0, count));
+            }
+        }
+
+        private static async Task WriteStreamWriterAsync(
+            Process process,
+            StreamWriter processStandardInput,
+            AsyncQueue stdIn,
+            CancellationToken cancellationToken)
+        {
+            while (cancellationToken.IsCancellationRequested == false)
+            {
+                string value = await stdIn.DequeueAsync(cancellationToken);
+
+                if (value == null)
+                {
+                    continue; 
+                }
+
+                await processStandardInput.WriteAsync(value);
+            }
+        }
+
+        private static async Task WaitForExitAsync(Process process, Action<LaborState> updateState, int timeout, CancellationToken cancellationToken)
         {
             var cancelSource = new CancellationTokenSource(); 
                 
@@ -146,17 +146,17 @@ namespace Tilde.Core.Work
                         // closing the input should submit ctrl+c to the process when the input is read.
                         process.StandardInput.Close();
 
-                        if (process.WaitForExit(10000) == false)
+                        if (process.WaitForExit(timeout) == false)
                         {
                             process.Kill();
                         }
 
-                        return true;
+                        return;
                     }
                     else
                     {
                         // Process exited naturally.
-                        return false;
+                        return;
                     }
                 }
             }
@@ -169,6 +169,8 @@ namespace Tilde.Core.Work
             }
             finally
             {
+                updateState(LaborState.Exited); 
+                
                 process.Exited -= OnProcessOnExited;
             }
         }

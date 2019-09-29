@@ -4,9 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO.Pipes;
 using System.Linq;
-using System.Runtime.Serialization.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Tilde.Core.Projects;
@@ -18,11 +16,6 @@ namespace Tilde.Core.Work
         private CancellationToken cancellationToken;
         
         public ConcurrentDictionary<string, Laborer> Work { get; set; } = new ConcurrentDictionary<string, Laborer>();
-
-        public Boss()
-        {
-
-        }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -50,7 +43,7 @@ namespace Tilde.Core.Work
             }
         }
 
-        public Laborer Start(Project project, string name = null)
+        public Laborer Run(Project project, string name = null)
         {
             Laborer laborer = new Laborer()
             {
@@ -66,7 +59,7 @@ namespace Tilde.Core.Work
                     Environment = new Dictionary<string, string>(),
                 }
             };
-            
+         
             while (Work.TryAdd(laborer.Name, laborer) == false)
             {
                 if (name != null)
@@ -77,6 +70,8 @@ namespace Tilde.Core.Work
                 laborer.Name = NameGenerator.Next(true);
             }
 
+            Console.WriteLine($"Run {project.Uri} Laborer: {name}");
+            
             laborer.Run(cancellationToken);
             
             return laborer; 
@@ -89,6 +84,8 @@ namespace Tilde.Core.Work
                 return;
             }
 
+            Console.WriteLine($"Stop Laborer {name}");
+            
             laborer.Stop(cancellationToken);
         }
     }

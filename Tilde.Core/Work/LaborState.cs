@@ -5,13 +5,10 @@ namespace Tilde.Core.Work
 {
     public enum LaborState
     {
-        Running = 0,
-        Stopped,
-        Paused,
-        ExitedWithCode, 
-        Terminating,
-        Restarting,
-        ExitedWithoutCode,
-        Exited
+        Created = 0,
+        Restarting, 
+        Running, 
+        Paused, 
+        Exited 
     }
 }

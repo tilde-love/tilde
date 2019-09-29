@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Tilde.Core.Projects;
 
 namespace Tilde.Core.Work
 {
@@ -12,21 +13,25 @@ namespace Tilde.Core.Work
         public List<ILaborRunner> Steps { get; set; }
 
         /// <inheritdoc />
-        public void Dispose()
-        {
-            
-        }
-
-        /// <inheritdoc />
         public string Type { get; }
 
         /// <inheritdoc />
         public LaborState State { get; set; }
 
         /// <inheritdoc />
-        public async Task<RunResult> Work(CancellationToken cancellationToken)
+        public async Task<(int? exitCode, string message)> Work(Project project, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            foreach (ILaborRunner step in Steps)
+            {
+                (int? exitCode, string message) result = await step.Work(project, cancellationToken);
+
+                if (result.exitCode != 0)
+                {
+                    return result; 
+                }
+            }
+
+            return (0, "Completed");
         }
     }
 }

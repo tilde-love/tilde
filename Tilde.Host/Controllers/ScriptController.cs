@@ -86,7 +86,7 @@ namespace Tilde.Host.Controllers
 
             boss.Stop(project.ToString());
             
-            boss.Start(projectObject, project.ToString());
+            boss.Run(projectObject, project.ToString());
             
 //            runtime.Load(projectObject);
 
