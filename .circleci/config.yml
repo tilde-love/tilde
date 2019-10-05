@@ -74,7 +74,7 @@ jobs:
           command: |
             mkdir ../.nuget
             dotnet pack --no-build --no-restore --configuration Release -o ../.nuget
-          working_directory: OscCore
+          working_directory: tilde
       
       - store_artifacts:
           path: ./.nuget
@@ -89,6 +89,8 @@ jobs:
     docker:
       - image: mcr.microsoft.com/dotnet/core/sdk:2.2-alpine
     steps:
+      - attach_workspace:
+          at: ~/
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
           at: ./

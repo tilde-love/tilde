@@ -4,7 +4,7 @@
 
         <!-- RuntimeFrameworkVersion 2.1.1 /RuntimeFrameworkVersion -->
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <RuntimeIdentifiers>win10-x64;ubuntu.16.04-x64;</RuntimeIdentifiers>
+        <RuntimeIdentifiers>win10-x64;linux-x64;linux-musl-x64;linux-arm;osx-x64</RuntimeIdentifiers>
         <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
 
         <LangVersion>7.1</LangVersion>
@@ -16,14 +16,18 @@
         <VersionBase>1.0.1</VersionBase>
         <IncludeSymbols>false</IncludeSymbols>
         <VersionSuffix />
+
+        <IncrementalVersionDay>$([System.DateTime]::UtcNow.ToString("yy"))$([System.DateTime]::UtcNow.DayOfYear.ToString("D3"))</IncrementalVersionDay>
+        <IncrementalVersionMin>$([System.DateTime]::UtcNow.TimeOfDay.TotalMinutes.ToString("F0"))</IncrementalVersionMin>
+        <VersionSuffix>-preview-$(IncrementalVersionDay).$(IncrementalVersionMin)</VersionSuffix>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
         <VersionBase>1.0.1</VersionBase>
         <IncludeSymbols>true</IncludeSymbols>
+        
         <IncrementalVersionDay>$([System.DateTime]::UtcNow.ToString("yy"))$([System.DateTime]::UtcNow.DayOfYear.ToString("D3"))</IncrementalVersionDay>
         <IncrementalVersionMin>$([System.DateTime]::UtcNow.TimeOfDay.TotalMinutes.ToString("F0"))</IncrementalVersionMin>
-
         <VersionSuffix>-preview-$(IncrementalVersionDay).$(IncrementalVersionMin)</VersionSuffix>
     </PropertyGroup>
 
