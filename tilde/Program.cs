@@ -24,7 +24,7 @@ namespace Tilde
             
             RootCommand root = new RootCommand("tilde")
             {
-                Description = "Tiny Integrated Live(ish) Development Environment"
+                Description = "Tilde Love - Containerisation for artists."
             };
 
             foreach (var command in AllResources.GetCommands())

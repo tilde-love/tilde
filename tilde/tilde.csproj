@@ -13,7 +13,7 @@
     <!--osx.10.11-x64;ubuntu.18.04-x64-->
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
-        <VersionBase>1.0.0</VersionBase>
+        <VersionBase>1.0.1</VersionBase>
         <IncludeSymbols>false</IncludeSymbols>
         <VersionSuffix />
     </PropertyGroup>

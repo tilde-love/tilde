@@ -11,7 +11,7 @@ import {
   DataSourceType,
   DataSource,
   NumericRange
-} from '../../scripting/project-types';
+} from '../../scripting/_model/project-types';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 @Component({

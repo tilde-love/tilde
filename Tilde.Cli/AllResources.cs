@@ -17,6 +17,9 @@ namespace Tilde.Cli
             {KnownVerbs.Add, new CliVerb(new[] {"add"}, "Add a resource.")},
             {KnownVerbs.Remove, new CliVerb(new[] {"remove", "rm"}, "Remove a resource.")},
             
+            {KnownVerbs.Get, new CliVerb(new[] {"get"}, "Get a resource.")},
+            {KnownVerbs.Set, new CliVerb(new[] {"set"}, "Set a resource.")},
+            
             {KnownVerbs.List, new CliVerb(new[] {"list", "ls"}, "Lists a resource.")},
             {KnownVerbs.Delete, new CliVerb(new[] {"delete", "del"}, "Delete a resource.")},
             {KnownVerbs.New, new CliVerb(new[] {"new", "create", "n"}, "Create a new resource.")},
@@ -37,6 +40,7 @@ namespace Tilde.Cli
             Resources.Add(new TemplateResource());
             Resources.Add(new TemplateIndexResource());
             Resources.Add(new ControlResource());
+            Resources.Add(new WorkResource());
         }
 
         public static IEnumerable<Command> GetCommands()

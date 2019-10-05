@@ -67,7 +67,7 @@ namespace Tilde.Host.Controllers
 
             templateSources.Remove(indexUri); 
             
-            return Ok();
+            return this.Deleted(new Uri($"/api/1.0/indices/{indexUri}", UriKind.RelativeOrAbsolute));
         }
         
         [HttpPut("indices/{*index-uri}")]
@@ -80,7 +80,7 @@ namespace Tilde.Host.Controllers
 
             templateSources.Add(indexUri);
             
-            return Ok();
+            return Created(new Uri($"/api/1.0/indices/{indexUri}", UriKind.RelativeOrAbsolute), null);
         }
     }
 }

@@ -41,6 +41,9 @@ namespace Tilde.Core.Work
         }
 
         /// <inheritdoc />
+        public event Action<ILaborRunner, LaborState> StateChanged;
+
+        /// <inheritdoc />
         public async Task<(int? exitCode, string message)> Work(Project project, CancellationToken cancellationToken)
         {
             using (ProjectLog log = new ProjectLog(project, LogType.Runtime))
@@ -56,7 +59,10 @@ namespace Tilde.Core.Work
                     s =>
                     {
                         Console.WriteLine($"Process state: {s}");
+                        
                         State = s;
+                        
+                        StateChanged?.Invoke(this, State);
                     },
                     10000,
                     cancellationToken

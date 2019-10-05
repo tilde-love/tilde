@@ -127,6 +127,7 @@ namespace Tilde
                 Console.WriteLine("http://tilde.love"); 
             }
             
+            
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
 
             try

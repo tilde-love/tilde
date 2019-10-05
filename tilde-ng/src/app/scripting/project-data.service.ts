@@ -1,5 +1,5 @@
 import {Injectable, OnDestroy} from '@angular/core';
-import {ApiError, FileContents, ProjectApiService, UploadInfo} from './project-api.service';
+import {ProjectApiService} from './_api/project-api.service';
 import {Subscription, BehaviorSubject, Observable, Subject} from 'rxjs';
 import { take } from 'rxjs/operators';
 import {FileNode} from './project-tree/project-tree.component';
@@ -8,7 +8,11 @@ import { environment } from '../../environments/environment';
 import { HubConnection } from '@aspnet/signalr';
 import * as signalR from '@aspnet/signalr';
 import {forEach} from '@angular/router/src/utils/collection';
-import {ControlEvent, ControlPanel, DataSource, EditorItem, EditorState, Project, Runtime, ScriptHostState} from './project-types';
+import {ControlEvent, ControlPanel, DataSource, EditorItem, EditorState, Project, Runtime, ScriptHostState} from './_model/project-types';
+import {UploadInfo} from './_model/upload-info';
+import {FileContents} from './_model/file-contents';
+import {ApiError} from './_model/api-error';
+import {WorkApiService} from './_api/work-api.service';
 
 @Injectable({
   providedIn: 'root'
@@ -61,7 +65,8 @@ export class ProjectDataService implements OnDestroy {
   //   return this._runtime.getValue().isInError;
   // }
 
-  constructor(private api: ProjectApiService) {
+  constructor(private projectApi: ProjectApiService,
+              private workApi: WorkApiService) {
     // TimerObservable.timer(1000)
     //   .takeWhile(() => this.alive) // only fires when component is alive
     //   .subscribe(() => {
@@ -190,7 +195,7 @@ export class ProjectDataService implements OnDestroy {
   }
 
   public loadProjects() {
-    return this.api.getProjects()
+    return this.projectApi.getProjects()
       .toPromise()
       .then(res => {
         this._projects.next(res);
@@ -211,7 +216,7 @@ export class ProjectDataService implements OnDestroy {
   }
 
   public getRuntime() {
-    return this.api.getRuntime()
+    return this.projectApi.getRuntime()
       .toPromise()
       .then(runtime => {
         this._runtime.next(runtime);
@@ -219,8 +224,8 @@ export class ProjectDataService implements OnDestroy {
       .catch(err => this.handleError(err as ApiError));
   }
 
-  public run() {
-    return this.api.run()
+  public run(name: string) {
+    return this.workApi.run(name)
       .toPromise()
       .then(thing => {
         // this.reload();
@@ -229,8 +234,8 @@ export class ProjectDataService implements OnDestroy {
       .catch(err => this.handleError(err as ApiError));
   }
 
-  public pause() {
-    return this.api.pause()
+  public pause(name: string) {
+    return this.workApi.pause(name)
       .toPromise()
       .then(thing => {
         this.getRuntime();
@@ -238,8 +243,8 @@ export class ProjectDataService implements OnDestroy {
       .catch(err => this.handleError(err as ApiError));
   }
 
-  public stop() {
-    return this.api.stop()
+  public stop(name: string) {
+    return this.workApi.stop(name)
       .toPromise()
       .then(thing => {
         // this.getRuntime();
@@ -247,8 +252,8 @@ export class ProjectDataService implements OnDestroy {
       .catch(err => this.handleError(err as ApiError));
   }
 
-  public reload() {
-    return this.api.reload()
+  public reload(name: string) {
+    return this.workApi.reload(name)
       .toPromise()
       .then(thing => {
         // this.getRuntime();
@@ -257,7 +262,7 @@ export class ProjectDataService implements OnDestroy {
   }
 
   public loadProject(projectUri: string) {
-    return this.api.loadProject(projectUri)
+    return this.workApi.loadProject(projectUri)
       .toPromise()
       .then(thing => {
         this.getRuntime();
@@ -266,7 +271,7 @@ export class ProjectDataService implements OnDestroy {
   }
 
   public deleteProject(projectUri: string) {
-    return this.api.deleteProject(projectUri)
+    return this.projectApi.deleteProject(projectUri)
       .toPromise()
       .then(thing => {
         // this.loadProjects();
@@ -275,7 +280,7 @@ export class ProjectDataService implements OnDestroy {
   }
 
   public createProject(projectUri: string) {
-    return this.api.createProject(projectUri)
+    return this.projectApi.createProject(projectUri)
       .toPromise()
       .then(thing => {
         // this.loadProjects();
@@ -286,7 +291,7 @@ export class ProjectDataService implements OnDestroy {
   public uploadProject(file: File) {
     // console.log(`upload file ${file.name}`);
 
-    return this.api.uploadProject(file)
+    return this.projectApi.uploadProject(file)
       .toPromise()
       .then(thing => {
         // this._editorCache[uri] = undefined;
@@ -304,7 +309,7 @@ export class ProjectDataService implements OnDestroy {
       return;
     }
 
-    return this.api.deleteFile(projectUri, filename)
+    return this.projectApi.deleteFile(projectUri, filename)
       .toPromise()
       .then(thing => {
         this._editorCache[uri] = undefined;
@@ -315,7 +320,7 @@ export class ProjectDataService implements OnDestroy {
   }
 
   public uploadFile(projectUri: string, file: File) {
-    return this.api.uploadFile(projectUri, file)
+    return this.projectApi.uploadFile(projectUri, file)
       .toPromise()
       .then(thing => {
         this.loadProjects();
@@ -345,7 +350,7 @@ export class ProjectDataService implements OnDestroy {
 
     currentItem$.getValue().edited = contents;
 
-    return this.api.setFileText(projectUri, filename, contents)
+    return this.projectApi.setFileText(projectUri, filename, contents)
       .toPromise()
       .then(thing => {
         currentItem$.next(currentItem$.getValue());
@@ -374,7 +379,7 @@ export class ProjectDataService implements OnDestroy {
     switch (currentItem$.getValue().state) {
       case EditorState.NotCached:
       case EditorState.NotFound:
-        this.api.getFileText(projectUri, filename)
+        this.projectApi.getFileText(projectUri, filename)
           .toPromise()
           .then(res => {
             const currentItem = currentItem$.getValue();
@@ -402,7 +407,7 @@ export class ProjectDataService implements OnDestroy {
           break;
         }
 
-        this.api.getFileText(projectUri, filename)
+        this.projectApi.getFileText(projectUri, filename)
           .toPromise()
           .then(res => {
             const currentItem = currentItem$.getValue();

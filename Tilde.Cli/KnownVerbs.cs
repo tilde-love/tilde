@@ -16,6 +16,9 @@ namespace Tilde.Cli
 //        public const string Stop = "C_Transport_Stop";
 //        public const string Watch = "B_Remote_Watch";
 
+        public const string Get = "Get";
+        public const string Set = "Set";
+        
         public const string Delete = "Delete";
         public const string List = "List";
         public const string Logs = "Logs";

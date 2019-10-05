@@ -837,9 +837,9 @@ namespace Tilde.Core.Work
 
 	    private static Random random = new Random();  
 	    
-	    public static string Next(bool randomSuffix = false)
+	    public static Uri Next(bool randomSuffix = false)
 	    {
-		    return $"{left[random.Next(left.Length)]}_{right[random.Next(right.Length)]}{(randomSuffix ? random.Next(10).ToString() : "")}";
+		    return new Uri($"{left[random.Next(left.Length)]}_{right[random.Next(right.Length)]}{(randomSuffix ? random.Next(10).ToString() : "")}", UriKind.RelativeOrAbsolute);
 	    }
     }
 }

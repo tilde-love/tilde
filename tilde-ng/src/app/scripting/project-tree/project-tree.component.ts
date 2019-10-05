@@ -2,7 +2,7 @@ import {ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/c
 import {Subscription, BehaviorSubject, from, of as observableOf} from 'rxjs';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import {ProjectDataService} from '../project-data.service';
-import {Project, ProjectFile} from '../project-types';
+import {Project, ProjectFile} from '../_model/project-types';
 
 export enum FileType {
   File = 0,
@@ -188,7 +188,6 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
       if (filename === '~project' ||
         filename === '~watch' ||
         filename === '~ignore') {
-        console.log(filename);
       } else
 
       if (filename.endsWith('.panel.json')) {

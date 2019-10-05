@@ -4,7 +4,7 @@ import { ProjectDataService} from '../project-data.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material';
 import {BehaviorSubject, Observable, Subscription, combineLatest} from 'rxjs';
-import {EditorItem, EditorState, Project, Error, ControlPanel} from '../project-types';
+import {EditorItem, EditorState, Project, Error, ControlPanel} from '../_model/project-types';
 
 export enum ProjectItemType {
   ProjectNotFound = 0,

@@ -1,72 +1,12 @@
-import { Injectable } from '@angular/core';
-import { Observable, throwError, } from 'rxjs';
-import { HttpClient, HttpEvent, HttpEventType, HttpRequest } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-import { map, filter, scan, catchError } from 'rxjs/operators';
-import { Project, Runtime } from './project-types';
-
-export class UploadInfo {
-  fileName: string;
-  progress: number;
-  bytes: number;
-  complete: boolean;
-}
-
-export enum ApiErrorType {
-  ServerError,
-  BadRequest,
-  SignInRequired,
-  InvalidField,
-  Forbidden,
-  Conflict,
-  Timeout,
-  NotFound
-}
-
-export class FileContents {
-  public uri: string;
-  public mimeType: string;
-  public text: string;
-  public hash: string;
-}
-
-export class ApiError {
-  errorType: ApiErrorType;
-  message: string;
-  field: string;
-
-  public static ServerError(message: string): Observable<never> {
-    return throwError({ errorType: ApiErrorType.ServerError, field: null, message: message });
-  }
-
-  public static BadRequest(message: string): Observable<never> {
-    return throwError({ errorType: ApiErrorType.BadRequest, field: null, message: message });
-  }
-
-  public static SignInRequired(): Observable<never> {
-    return throwError({ errorType: ApiErrorType.SignInRequired, field: null, message: null });
-  }
-
-  public static InvalidField(field: string, message: string): Observable<never> {
-    return throwError({ errorType: ApiErrorType.InvalidField, field: field, message: message });
-  }
-
-  public static Forbidden(message: string): Observable<never> {
-    return throwError({ errorType: ApiErrorType.Forbidden, field: null, message: message });
-  }
-
-  public static Conflict(message: string): Observable<never> {
-    return throwError({ errorType: ApiErrorType.Conflict, field: null, message: message });
-  }
-
-  public static Timeout(message: string): Observable<never> {
-    return throwError({ errorType: ApiErrorType.Timeout, field: null, message: message });
-  }
-
-  public static NotFound(message: string): Observable<never> {
-    return throwError({ errorType: ApiErrorType.NotFound, field: null, message: message });
-  }
-}
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {HttpClient, HttpEvent, HttpEventType, HttpRequest} from '@angular/common/http';
+import {environment} from '../../../environments/environment';
+import {catchError, map} from 'rxjs/operators';
+import {Project, Runtime} from '../_model/project-types';
+import {UploadInfo} from '../_model/upload-info';
+import {FileContents} from '../_model/file-contents';
+import {ApiError} from '../_model/api-error';
 
 @Injectable({
   providedIn: 'root'
@@ -369,116 +309,6 @@ export class ProjectApiService {
 
   public getRuntime(): Observable<Runtime> {
     return this.http.get<Runtime>(`${environment.apiUri}/script/runtime`, { })
-      .pipe(
-        map((result) => {
-          return result;
-        }),
-        catchError((error) => {
-          switch (error.status) {
-            case 200:
-              // we good
-              break;
-            case 500:
-              return ApiError.ServerError(`A server error occurred while getting runtime`);
-            case 504:
-              return ApiError.ServerError(`Cannot contact server`);
-            default:
-              return ApiError.ServerError(`An unknown error occurred while getting runtime (${error.status})`);
-          }
-        })
-      );
-  }
-
-  public loadProject(projectUri: string): Observable<string> {
-    return this.http.get<string>(`${environment.apiUri}/script/runtime/run/${projectUri}`, { })
-      .pipe(
-        map((result) => {
-          return result;
-        }),
-        catchError((error) => {
-          switch (error.status) {
-            case 200:
-              // we good
-              break;
-            case 500:
-              return ApiError.ServerError(`A server error occurred while getting runtime`);
-            case 504:
-              return ApiError.ServerError(`Cannot contact server`);
-            default:
-              return ApiError.ServerError(`An unknown error occurred while getting runtime (${error.status})`);
-          }
-        })
-      );
-  }
-
-  public run(): Observable<string> {
-    return this.http.get<string>(`${environment.apiUri}/script/runtime/run`, { })
-      .pipe(
-        map((result) => {
-          return result;
-        }),
-        catchError((error) => {
-          switch (error.status) {
-            case 200:
-              // we good
-              break;
-            case 500:
-              return ApiError.ServerError(`A server error occurred while getting runtime`);
-            case 504:
-              return ApiError.ServerError(`Cannot contact server`);
-            default:
-              return ApiError.ServerError(`An unknown error occurred while getting runtime (${error.status})`);
-          }
-        })
-      );
-  }
-
-  public pause(): Observable<string> {
-    return this.http.get<string>(`${environment.apiUri}/script/runtime/pause`, { })
-      .pipe(
-        map((result) => {
-          return result;
-        }),
-        catchError((error) => {
-          switch (error.status) {
-            case 200:
-              // we good
-              break;
-            case 500:
-              return ApiError.ServerError(`A server error occurred while getting runtime`);
-            case 504:
-              return ApiError.ServerError(`Cannot contact server`);
-            default:
-              return ApiError.ServerError(`An unknown error occurred while getting runtime (${error.status})`);
-          }
-        })
-      );
-  }
-
-  public stop(): Observable<string> {
-    return this.http.get<string>(`${environment.apiUri}/script/runtime/stop`, { })
-      .pipe(
-        map((result) => {
-          return result;
-        }),
-        catchError((error) => {
-          switch (error.status) {
-            case 200:
-              // we good
-              break;
-            case 500:
-              return ApiError.ServerError(`A server error occurred while getting runtime`);
-            case 504:
-              return ApiError.ServerError(`Cannot contact server`);
-            default:
-              return ApiError.ServerError(`An unknown error occurred while getting runtime (${error.status})`);
-          }
-        })
-      );
-  }
-
-  public reload(): Observable<string> {
-    return this.http.get<string>(`${environment.apiUri}/script/runtime/reload`, { })
       .pipe(
         map((result) => {
           return result;

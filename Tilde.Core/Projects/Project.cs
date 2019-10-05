@@ -469,8 +469,7 @@ namespace Tilde.Core.Projects
 
             foreach (string line in ReadFileLines(file))
             {
-                if (line.Trim()
-                        .Length == 0)
+                if (line.Trim().Length == 0)
                 {
                     continue;
                 }
@@ -492,6 +491,13 @@ namespace Tilde.Core.Projects
                 {
                     include = true;
                     statement = line;
+                }
+
+                statement = statement.Trim(); 
+                
+                if (statement.Length == 0)
+                {
+                    continue;
                 }
 
                 include ^= invertSelection;

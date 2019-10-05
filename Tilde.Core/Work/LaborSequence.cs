@@ -1,6 +1,7 @@
 // Copyright (c) Tilde Love Project. All rights reserved.
 // Licensed under the MIT license. See LICENSE in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace Tilde.Core.Work
 
         /// <inheritdoc />
         public LaborState State { get; set; }
+
+        /// <inheritdoc />
+        public event Action<ILaborRunner, LaborState> StateChanged;
 
         /// <inheritdoc />
         public async Task<(int? exitCode, string message)> Work(Project project, CancellationToken cancellationToken)

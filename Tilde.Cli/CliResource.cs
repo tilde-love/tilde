@@ -16,6 +16,7 @@ namespace Tilde.Cli
         public List<Command> Commands { get; set; } = new List<Command>();
 
         public string Name { get; set; }
+        
         public Dictionary<string, Command> VerbCommands { get; set; } = new Dictionary<string, Command>();
 
         protected Command CreateNounCommand(

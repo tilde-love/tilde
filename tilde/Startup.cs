@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -86,13 +87,18 @@ namespace Tilde
                 }
             );
         }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        
         public void ConfigureServices(IServiceCollection services)
         {
             // PluginsConfig pluginsConfig = Configuration.GetSection("Plugins").Get<PluginsConfig>();
 
+            List<string> origins = new List<string>()
+            {
+                "http://localhost:4200",
+                "http://localhost:5678",
+                "*"
+            };
+            
             services.AddCors(
                 options =>
                 {
@@ -103,9 +109,7 @@ namespace Tilde
                                 .AllowAnyMethod()
                                 .AllowAnyHeader()
                                 .AllowCredentials()
-                                //.WithOrigins("http://localhost:4200")
-                                //.WithOrigins("http://localhost:5678")
-                                .AllowAnyOrigin()
+                                .WithOrigins(origins.ToArray())
                     );
                 }
             );

@@ -1,3 +1,7 @@
+:host {
+  width: 100%;
+}
+
 .project-tree ul,
 .project-tree li {
   margin-top: 0;
@@ -11,6 +15,20 @@ ul {
   padding-left: 10px;
 }
 
+.tree-icon {
+
+}
+
 .tree-label {
-  display: inline-block;
+  //display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label-text {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  flex: 1 auto;
 }

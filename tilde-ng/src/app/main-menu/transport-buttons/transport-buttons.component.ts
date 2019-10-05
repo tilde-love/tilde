@@ -63,15 +63,15 @@ export class TransportButtonsComponent implements OnInit, OnDestroy {
       this.projectDataService.loadProject(this.projectName);
     }
 
-    this.projectDataService.run();
+    this.projectDataService.run(this.projectName);
   }
 
   public stop() {
-    this.projectDataService.stop();
+    this.projectDataService.stop(this.projectName);
   }
 
   public pause() {
-    this.projectDataService.pause();
+    this.projectDataService.pause(this.projectName);
   }
 
   ngOnDestroy(): void {

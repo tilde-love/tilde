@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Tilde.Core;
 using Tilde.Core.Projects;
+using Tilde.Core.Work;
 using Tilde.SharedTypes;
 
 namespace Tilde.Host.Hubs.Client
@@ -17,13 +18,15 @@ namespace Tilde.Host.Hubs.Client
     {
         private readonly IHubContext<ClientHub, IClient> hubContext;
         private readonly ProjectManager projectManager;
+        private readonly Boss boss;
         //private readonly IRuntime runtime;
 
-        public ClientService(IHubContext<ClientHub, IClient> hubContext, ProjectManager projectManager)
+        public ClientService(IHubContext<ClientHub, IClient> hubContext, ProjectManager projectManager, Boss boss)
         {
             this.hubContext = hubContext;
 //            this.runtime = runtime;
             this.projectManager = projectManager;
+            this.boss = boss;
         }
 
         /// <inheritdoc />
@@ -39,6 +42,8 @@ namespace Tilde.Host.Hubs.Client
             projectManager.ControlPanelChanged += ControlPanelChanged;
             projectManager.DataSourceChanged += DataSourceChanged;
             projectManager.ControlValueChanged += ControlValueChanged;
+
+            boss.WorkChanged += WorkChanged; 
 
             return Task.CompletedTask;
         }
@@ -57,6 +62,16 @@ namespace Tilde.Host.Hubs.Client
             projectManager.ControlValueChanged -= ControlValueChanged;
 
             return Task.CompletedTask;
+        }
+        
+        private async void WorkChanged(Laborer laborer)
+        {
+            Console.WriteLine($"Laborer {laborer.Name}, {laborer.Runner.State}" );
+            
+            await hubContext
+                .Clients
+                .All
+                .OnWorkChanged(laborer);
         }
 
         private async void ControlPanelChanged(Uri project, Uri panelUri, ControlPanel panel)

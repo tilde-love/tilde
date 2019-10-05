@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -13,6 +14,8 @@ namespace Tilde.Core.Work
         
         [JsonProperty("state")]
         LaborState State { get; set; }
+
+        event Action<ILaborRunner, LaborState> StateChanged;
 
         Task<(int? exitCode, string message)> Work(Project project, CancellationToken cancellationToken);
     }

@@ -1,5 +1,5 @@
 import {Component, HostBinding, Input, OnInit} from '@angular/core';
-import {ControlPanel, LayoutSize, Project} from '../../scripting/project-types';
+import {ControlPanel, LayoutSize, Project} from '../../scripting/_model/project-types';
 import {isNullOrUndefined} from 'util';
 
 @Component({

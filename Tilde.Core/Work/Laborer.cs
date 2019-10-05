@@ -14,7 +14,7 @@ namespace Tilde.Core.Work
     /// </summary>
     public class Laborer
     {
-        public string Name { get; set; }
+        public Uri Name { get; set; }
 
         public Uri ProjectUri { get; set; }
         
@@ -37,9 +37,54 @@ namespace Tilde.Core.Work
             cancellationTokenSource = new CancellationTokenSource();
             linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token);
 
+            Runner.StateChanged += OnStateChanged;
+            
             task = Runner
                 .Work(Project, linkedTokenSource.Token)
-                .ContinueWith(t => { ExitCode = t.Result.exitCode; });
+                .ContinueWith(t => {
+                    try
+                    {
+                        Runner.StateChanged -= OnStateChanged;
+                        
+                        ExitCode = t.Result.exitCode;
+                        
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // eat this exception.
+                        return;
+                    }
+                    catch (AggregateException aex)
+                    {
+                        foreach (Exception ex in aex.Flatten().InnerExceptions)
+                        {
+                            switch (ex)
+                            {
+                                case TaskCanceledException cex:
+                                    // eat this exception.
+                                    break;
+                                default:
+                                    Console.WriteLine(ex.ToString());
+                                    throw;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        
+                        throw; 
+                    }
+                    finally
+                    {
+                        StateChanged?.Invoke(this);
+                    }
+                });
+        }
+
+        private void OnStateChanged(ILaborRunner laborRunner, LaborState laborState)
+        {
+            StateChanged?.Invoke(this);
         }
 
         public void Stop(CancellationToken cancellationToken)
@@ -91,5 +136,7 @@ namespace Tilde.Core.Work
             linkedTokenSource.Dispose();
             cancellationTokenSource.Dispose();
         }
+
+        public event Action<Laborer> StateChanged;
     }
 }

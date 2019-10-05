@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 using Tilde.Core.Projects;
@@ -15,7 +16,7 @@ namespace Tilde.Core.Work
     {
         private CancellationToken cancellationToken;
         
-        public ConcurrentDictionary<string, Laborer> Work { get; set; } = new ConcurrentDictionary<string, Laborer>();
+        public ConcurrentDictionary<Uri, Laborer> Work { get; set; } = new ConcurrentDictionary<Uri, Laborer>();
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -31,6 +32,8 @@ namespace Tilde.Core.Work
                 try
                 {
                     laborer.Stop(CancellationToken.None); //  cancellationToken);
+
+                    laborer.StateChanged -= OnLaborerStateChanged;
                 }
                 catch
                 {
@@ -43,8 +46,18 @@ namespace Tilde.Core.Work
             }
         }
 
-        public Laborer Run(Project project, string name = null)
+        private void OnLaborerStateChanged(Laborer laborer)
         {
+            WorkChanged?.Invoke(laborer); 
+        }
+
+        public Laborer RunProject(Project project, Uri name = null)
+        {
+            if (name != null)
+            {
+                TryRemove(name, out _);
+            }
+
             Laborer laborer = new Laborer()
             {
                 Name = name ?? NameGenerator.Next(), 
@@ -70,23 +83,82 @@ namespace Tilde.Core.Work
                 laborer.Name = NameGenerator.Next(true);
             }
 
-            Console.WriteLine($"Run {project.Uri} Laborer: {name}");
-            
-            laborer.Run(cancellationToken);
-            
+            Console.WriteLine($"RunProject {project.Uri} Laborer: {name}");
+
+            Start(laborer.Name, out _);
+
             return laborer; 
         }
         
-        public void Stop(string name)
+        public bool Start(Uri name, out Laborer laborer)
         {
-            if (Work.TryRemove(name, out Laborer laborer) == false)
+            if (Work.TryGetValue(name, out laborer) == false)
             {
-                return;
+                return false;
+            }
+
+            Console.WriteLine($"Start Laborer {name}");
+            
+            laborer.Run(cancellationToken);
+            
+            WorkChanged?.Invoke(laborer);
+            
+            return true;
+        }
+
+        public bool Pause(Uri name, out Laborer laborer)
+        {
+            if (Work.TryGetValue(name, out laborer) == false)
+            {
+                return false;
+            }
+
+            Console.WriteLine($"Pause Laborer {name}");
+            
+            // laborer.Pause(cancellationToken);
+            
+            WorkChanged?.Invoke(laborer);
+            
+            return true;
+        }
+        
+        public bool Stop(Uri name, out Laborer laborer)
+        {
+            if (Work.TryGetValue(name, out laborer) == false)
+            {
+                return false;
             }
 
             Console.WriteLine($"Stop Laborer {name}");
             
             laborer.Stop(cancellationToken);
+            
+            WorkChanged?.Invoke(laborer);
+            
+            return true;
         }
+
+        public bool TryRemove(Uri name, out Laborer laborer)
+        {
+            laborer = null; 
+            
+            if (Stop(name, out _) == false)
+            {
+                return false;
+            }
+
+            if (Work.TryRemove(name, out laborer) == false)
+            {
+                return false;
+            }
+
+            Console.WriteLine($"Remove Laborer {name}");
+            
+            WorkChanged?.Invoke(laborer);
+            
+            return true;
+        }
+
+        public event Action<Laborer> WorkChanged;
     }
 }

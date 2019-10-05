@@ -33,14 +33,14 @@ namespace Tilde.Host.Controllers
         [HttpPut("projects/{project}")]
         public async Task<IActionResult> Create(Uri project)
         {
-            if (projectManager.Projects.TryGetValue(project, out Project projectObject))
+            if (projectManager.Projects.TryGetValue(project, out _))
             {
-                return StatusCode(StatusCodes.Status409Conflict);
+                return Conflict();
             }
 
-            projectManager.Read(project);
-
-            return StatusCode(StatusCodes.Status201Created);
+            Project projectObject = projectManager.Read(project); 
+            
+            return Created(new Uri($"/api/1.0/projects/{project}", UriKind.RelativeOrAbsolute), projectObject);
         }
 
         // create / upload
@@ -54,7 +54,8 @@ namespace Tilde.Host.Controllers
 
             await projectObject.WriteFile(file, content);
 
-            return Ok();
+            return Created(new Uri($"/api/1.0/projects/{project}/{file}", UriKind.RelativeOrAbsolute), null); 
+            //  new ObjectResult(project) { StatusCode  = StatusCodes.Status201Created };
         }
 
         [HttpPut("projects/{project}/{*file}")]
@@ -71,7 +72,7 @@ namespace Tilde.Host.Controllers
                     await projectObject.WriteFile(file, ms.ToArray());
                 }
 
-                return StatusCode(StatusCodes.Status201Created);
+                return Created(new Uri($"/api/1.0/projects/{project}/{file}", UriKind.RelativeOrAbsolute), null);
             }
             catch (Exception ex)
             {
@@ -81,7 +82,7 @@ namespace Tilde.Host.Controllers
 
         // delete
         [HttpDelete("projects/{project}")]
-        public IActionResult Delete(Uri project)
+        public IActionResult DeleteProject(Uri project)
         {
             if (projectManager.Projects.TryGetValue(project, out Project projectObject) == false)
             {
@@ -92,7 +93,7 @@ namespace Tilde.Host.Controllers
 
             // projectManager.Scan();
 
-            return Ok();
+            return this.Deleted(new Uri($"/api/1.0/projects/{project}", UriKind.RelativeOrAbsolute));
         }
 
         // delete
@@ -104,7 +105,9 @@ namespace Tilde.Host.Controllers
                 return NotFound();
             }
 
-            return projectObject.DeleteFile(file) ? Ok() : (IActionResult) NoContent();
+            return projectObject.DeleteFile(file) 
+                ? this.Deleted(new Uri($"/api/1.0/projects/{project}/{file}", UriKind.RelativeOrAbsolute)) 
+                : NoContent();
         }
 
         // get file
@@ -125,20 +128,15 @@ namespace Tilde.Host.Controllers
                     return NotFound();
                 }
 
-                string extension = Path.GetExtension(file.ToString())
-                    .ToLowerInvariant();
+                string extension = Path.GetExtension(file.ToString()).ToLowerInvariant();
 
                 string mimeType = MimeTypes.Types.GetOrAdd(extension, "application/octet-stream");
 
                 Response.Headers.Add("uri", $"project/{project}/{file}");
 
-                if (projectObject.ProjectFiles.TryGetValue(file, out ProjectFile projectFile) == true)
+                if (projectObject.ProjectFiles.TryGetValue(file, out _) == true)
                 {
-                    Response.Headers.Add(
-                        "hash",
-                        projectObject.ProjectFiles[file]
-                            .Hash
-                    );
+                    Response.Headers.Add("hash", projectObject.ProjectFiles[file].Hash);
                 }
 
                 if (file.ToString() == "log")
@@ -175,12 +173,9 @@ namespace Tilde.Host.Controllers
             Response.Headers.Add("Content-Type", mimeType);
             Response.Headers.Add("uri", $"project/{project}/{file}");
 
-            if (projectObject.ProjectFiles.TryGetValue(file, out ProjectFile projectFile) == true)
+            if (projectObject.ProjectFiles.TryGetValue(file, out _) == true)
             {
-                Response.Headers.Add(
-                    "hash",
-                    projectObject.ProjectFiles[file].Hash
-                );
+                Response.Headers.Add("hash", projectObject.ProjectFiles[file].Hash);
             }
 
             return Ok(); 
@@ -242,8 +237,6 @@ namespace Tilde.Host.Controllers
         [HttpGet("projects")]
         public IActionResult GetProjects()
         {
-            // projectManager.Scan();
-
             return Ok(
                 new Dictionary<Uri, Project>(
                     projectManager
@@ -274,9 +267,7 @@ namespace Tilde.Host.Controllers
 
                 await projectObject.WriteFile(file, fileBytes);
 
-                // projectManager.Scan();
-
-                return StatusCode(StatusCodes.Status201Created);
+                return Created(new Uri($"/api/1.0/projects/{project}/{file}", UriKind.RelativeOrAbsolute), null);
             }
             catch (Exception ex)
             {
@@ -307,9 +298,7 @@ namespace Tilde.Host.Controllers
 
                 await projectObject.Unpack(fileBytes);
 
-                // projectManager.Scan();
-
-                return StatusCode(StatusCodes.Status201Created);
+                return Created(new Uri($"/api/1.0/projects/{project}", UriKind.RelativeOrAbsolute), projectObject);
             }
             catch (Exception ex)
             {

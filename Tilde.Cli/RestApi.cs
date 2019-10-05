@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Tilde.Cli
 {
@@ -16,7 +17,7 @@ namespace Tilde.Cli
         {
             Uri requestUri = new Uri(serverUri, new Uri($"api/1.0/projects/{project}/{file}", UriKind.Relative));
 
-            try 
+            try
             {
                 (HttpStatusCode statusCode, string body) response = GetResponse("DELETE", requestUri)
                     .Result;
@@ -68,11 +69,11 @@ namespace Tilde.Cli
             FileInfo fileInfo = new FileInfo(localFile);
 
             if (fileInfo.Directory?.Exists == false)
-            { 
+            {
                 fileInfo.Directory.Create();
             }
 
-            File.WriteAllBytes(localFile, bytes); 
+            File.WriteAllBytes(localFile, bytes);
         }
 
         public static bool GetRawFile(Uri serverUri, string project, string file)
@@ -106,7 +107,7 @@ namespace Tilde.Cli
                 return false;
             }
         }
-
+        
         public static async Task<(HttpStatusCode statusCode, string body)> GetResponse(string method, Uri requestUri)
         {
             try
@@ -154,6 +155,25 @@ namespace Tilde.Cli
 
                 throw;
             }
+            catch (WebException wex)
+            {
+                if (!(wex.Response is HttpWebResponse response))
+                {
+                    throw;
+                }
+
+                Console.WriteLine($"Could not contact the server. {requestUri}");
+                Console.WriteLine(wex.Message);
+                
+                HttpStatusCode statusCode = response.StatusCode;
+
+                if (statusCode == HttpStatusCode.NotFound)
+                {
+                    return (statusCode, default);
+                }
+
+                throw;
+            }
         }
 
         public static async Task<(HttpStatusCode statusCode, T result)> GetResponse<T>(string method, Uri requestUri)
@@ -170,8 +190,7 @@ namespace Tilde.Cli
                     {
                         return (
                             response.StatusCode,
-                            JsonConvert.DeserializeObject<T>(
-                                await strReader.ReadToEndAsync()
+                            JsonConvert.DeserializeObject<T>(await strReader.ReadToEndAsync()
                             )
                         );
                     }
@@ -215,6 +234,9 @@ namespace Tilde.Cli
                     throw;
                 }
 
+                Console.WriteLine($"Could not contact the server. {requestUri}");
+                Console.WriteLine(wex.Message);
+                
                 HttpStatusCode statusCode = response.StatusCode;
 
                 if (statusCode == HttpStatusCode.NotFound)
@@ -276,6 +298,25 @@ namespace Tilde.Cli
 
                 throw;
             }
+            catch (WebException wex)
+            {
+                if (!(wex.Response is HttpWebResponse response))
+                {
+                    throw;
+                }
+
+                Console.WriteLine($"Could not contact the server. {requestUri}");
+                Console.WriteLine(wex.Message);
+                
+                HttpStatusCode statusCode = response.StatusCode;
+
+                if (statusCode == HttpStatusCode.NotFound)
+                {
+                    return (statusCode, default);
+                }
+
+                throw;
+            }
         }
 
         public static async Task<HttpStatusCode> MakeRequest(string method, Uri requestUri)
@@ -314,6 +355,25 @@ namespace Tilde.Cli
 
                     HttpStatusCode statusCode = response.StatusCode;
 
+                    return statusCode;
+                }
+
+                throw;
+            }
+            catch (WebException wex)
+            {
+                if (!(wex.Response is HttpWebResponse response))
+                {
+                    throw;
+                }
+
+                Console.WriteLine($"Could not contact the server. {requestUri}");
+                Console.WriteLine(wex.Message);
+                
+                HttpStatusCode statusCode = response.StatusCode;
+
+                if (statusCode == HttpStatusCode.NotFound)
+                {
                     return statusCode;
                 }
 

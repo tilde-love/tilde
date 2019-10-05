@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Tilde.Core;
 using Tilde.Core.Projects;
+using Tilde.Core.Work;
 using Tilde.SharedTypes;
 
 namespace Tilde.Host.Hubs.Client
@@ -25,5 +26,7 @@ namespace Tilde.Host.Hubs.Client
         Task OnProjects(Uri[] projects);
 
         Task OnStateChange(RuntimeState state);
+
+        Task OnWorkChanged(Laborer laborer); 
     }
 }
