@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {AceEditorComponent} from 'ng2-ace-editor';
 import {ProjectDataService} from '../project-data.service';
-import { Error } from '../project-types';
+import { Error } from '../_model/project-types';
 import {Subscription} from 'rxjs';
 // import {Ace} from 'ace-builds';
 // import Point = Ace.Point;
@@ -67,11 +67,11 @@ export class ScriptEditorComponent implements OnInit, OnDestroy {
     });
   }
 
-  public theme: string = 'tomorrow_night_bright';
+  public theme = 'tomorrow_night_bright';
 
-  private _mode: string = '';
-  private _readonly: boolean = false;
-  private _text: string = '';
+  private _mode = '';
+  private _readonly = false;
+  private _text = '';
   private _projectErrors: Error[] = [];
   private _textChanged: EventEmitter<{}> = new EventEmitter<{}>();
 
@@ -117,6 +117,15 @@ export class ScriptEditorComponent implements OnInit, OnDestroy {
     this.editor.getEditor().getSession().setUseWrapMode(true);
     this.editor.getEditor().getSession().setOption('useWorker', false);
     this.editor.getEditor().setReadOnly(this.readonly);
+
+    this.editor.getEditor().commands.addCommand({
+      name: 'save',
+      bindKey: {win: 'Ctrl-S', mac: 'Cmd-S'},
+      exec: (editor1, args) => {
+        this.onChange(this.editor.getEditor());
+      }
+    });
+
     // this.editor.getEditor().setShowGutter(!this.readonly);
     // // This array holds all the errors
     // const jsonErrorArray = [];

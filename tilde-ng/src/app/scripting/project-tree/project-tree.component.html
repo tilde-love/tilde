@@ -3,34 +3,40 @@
     <mat-nested-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
       <li>
         <div class="tree-label">
-          <button mat-icon-button
-                  (click)="toggle(node)"
-                  [style.display]="node.fileType === fileType.Folder ? 'inherit' : 'none'"
-                  [color]="node.color">
-            <mat-icon>
-              {{node.isOpen ? 'folder_open' : 'folder'}}
-            </mat-icon>
-          </button>
+          <div class="tree-icon">
+            <button mat-icon-button
+                    (click)="toggle(node)"
+                    [style.display]="node.fileType === fileType.Folder ? 'inherit' : 'none'"
+                    [color]="node.color">
+              <mat-icon>
+                {{node.isOpen ? 'folder_open' : 'folder'}}
+              </mat-icon>
+            </button>
 
-          <button mat-icon-button
-                  [style.display]="node.fileType !== fileType.Folder ? 'inherit' : 'none'"
-                  [routerLink]="node.uri"
-                  [color]="node.color">
-            <mat-icon>
-              {{node.icon}}
-            </mat-icon>
-          </button>
+            <button mat-icon-button
+                    [style.display]="node.fileType !== fileType.Folder ? 'inherit' : 'none'"
+                    [routerLink]="node.uri"
+                    [color]="node.color">
+              <mat-icon>
+                {{node.icon}}
+              </mat-icon>
+            </button>
+          </div>
 
-          <button mat-icon-button
-                  (click)="toggle(node)"
-                  [style.display]="node.fileType === fileType.Partial ? 'inherit' : 'none'"
-                  color="accent">
-            <mat-icon>
-              {{node.isOpen ? 'remove_circle_outline' : 'add_circle'}}
-            </mat-icon>
-          </button>
-
+          <span class="label-text">
           {{node.filename}}
+          </span>
+
+          <div class="tree-icon">
+            <button mat-icon-button
+                    (click)="toggle(node)"
+                    [style.display]="node.fileType === fileType.Partial ? 'inherit' : 'none'"
+                    color="accent">
+              <mat-icon>
+                {{node.isOpen ? 'remove_circle_outline' : 'add_circle'}}
+              </mat-icon>
+            </button>
+          </div>
         </div>
 
         <ul *ngIf="node.isOpen">

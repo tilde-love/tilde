@@ -1,75 +1,72 @@
 ﻿// Copyright (c) Tilde Love Project. All rights reserved.
 // Licensed under the MIT license. See LICENSE in the project root for license information.
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
 namespace Tilde.SharedTypes
 {
     /// <summary>
-    /// Data types for data sources.
+    ///     Data types for data sources.
     /// </summary>
     // [JsonConverter(typeof(StringEnumConverter))]
     public enum DataSourceType
     {
         /// <summary>
-        /// Boolean
+        ///     Boolean
         /// </summary>
-        Boolean, 
-        
+        Boolean,
+
         /// <summary>
-        /// Enumeration
+        ///     Enumeration
         /// </summary>
         Enum,
-        
+
         /// <summary>
-        /// String 
+        ///     String
         /// </summary>
         String,
-        
+
         /// <summary>
-        /// Floating point number
+        ///     Floating point number
         /// </summary>
         Float,
-        
+
         /// <summary>
-        /// Array of floating point numbers
+        ///     Array of floating point numbers
         /// </summary>
         FloatArray,
-        
+
         /// <summary>
-        /// Integer
+        ///     Integer
         /// </summary>
         Integer,
-        
+
         /// <summary>
-        /// Array of integers
+        ///     Array of integers
         /// </summary>
         IntegerArray,
-        
+
         /// <summary>
-        /// Color 
+        ///     Color
         /// </summary>
         Color,
-        
+
         /// <summary>
-        /// Image
+        ///     Image
         /// </summary>
-        Image, 
-        
+        Image,
+
         /// <summary>
-        /// Graph object composed of graph lines and styles 
+        ///     Graph object composed of graph lines and styles
         /// </summary>
-        Graph, 
-        
+        Graph,
+
         /// <summary>
-        /// Base64 encoded svg image
+        ///     Base64 encoded svg image
         /// </summary>
         Svg,
-        
+
         /// <summary>
-        /// Unknown type 
+        ///     Unknown type
         /// </summary>
-        Any, 
+        Any
     }
 }

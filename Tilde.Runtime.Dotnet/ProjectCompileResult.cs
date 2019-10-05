@@ -3,17 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Tilde.Core.Build;
 using Tilde.Core.Projects;
 
 namespace Tilde.Runtime.Dotnet
 {
-    public class ProjectCompileResult
-    {
-        public string AssemblyPath { get; set; }
-
-        public string SymbolsPath { get; set; }
-
-        public Dictionary<Uri, List<Error>> Errors { get; set; }
-
-    }
+//    public class ProjectCompileResult
+//    {
+//        public string AssemblyPath { get; set; }
+//
+//        public Dictionary<Uri, List<Error>> Errors { get; set; }
+//
+//        public string SymbolsPath { get; set; }
+//    }
 }

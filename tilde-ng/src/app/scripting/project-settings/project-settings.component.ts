@@ -1,5 +1,5 @@
 import {Component, HostBinding, OnInit} from '@angular/core';
-import {GraphLine} from '../project-types';
+import {GraphLine} from '../_model/project-types';
 
 @Component({
   selector: 'app-project-settings',

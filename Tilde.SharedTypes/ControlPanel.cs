@@ -12,6 +12,6 @@ namespace Tilde.SharedTypes
         public List<Control> Controls { get; set; }
 
         [JsonProperty("hash")]
-        public string Hash { get; set; } 
+        public string Hash { get; set; }
     }
 }

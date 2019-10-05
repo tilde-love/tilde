@@ -24,22 +24,19 @@ namespace Tilde.SharedTypes
 //    }
     public struct Viewport
     {
-        public int X, Y, Width, Height; 
+        public int X, Y, Width, Height;
     }
-    
+
     public class Graph
     {
+        public List<GraphLine> Lines;
         public Viewport? Viewport;
-
-        public List<GraphLine> Lines; 
     }
-    
-    public class GraphLine 
-    {   
-        [JsonProperty("style")]
-        public string Style;
-        
-        [JsonProperty("path")] 
-        public string Path;
+
+    public class GraphLine
+    {
+        [JsonProperty("path")] public string Path;
+
+        [JsonProperty("style")] public string Style;
     }
 }

@@ -9,19 +9,19 @@ namespace Tilde.Cli
     {
         public static void PrintLogo()
         {
-            PrintLogo(0, 6); 
+            PrintLogo(0, 6);
         }
 
         public static void PrintLogo(int logo)
         {
-            PrintLogo(logo, logo + 1); 
+            PrintLogo(logo, logo + 1);
         }
 
         public static void PrintLogo(int min, int max)
         {
             Random random = new Random(unchecked((int) (DateTime.UtcNow.Ticks & 0xFFFFFFFF)));
 
-            int logo = random.Next(min, max);            
+            int logo = random.Next(min, max);
 
             switch (logo)
             {
@@ -50,7 +50,7 @@ namespace Tilde.Cli
                     Console.WriteLine("                \"           ");
 
                     break;
-                
+
                 case 2:
                     Console.WriteLine("                                     ....     ....     ");
                     Console.WriteLine("                                  .od8888b. .d8888bo.  ");
@@ -101,7 +101,7 @@ namespace Tilde.Cli
                     Console.WriteLine("    dP   dP dP `88888P8 `88888P' dP `88888P' 8888P'   `88888P'");
                     Console.WriteLine("");
 
-                    break;            
+                    break;
             }
         }
     }

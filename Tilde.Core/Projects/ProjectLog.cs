@@ -39,6 +39,24 @@ namespace Tilde.Core.Projects
             stream = new FileStream(FullName, FileMode.Create, FileAccess.Write, FileShare.Read);
             writer = new StreamWriter(stream);
         }
+        
+        public ProjectLog(string fullName, LogType logType)
+        {
+            this.logType = logType;
+
+            FullName = fullName; 
+
+            lock (syncRoot)
+            {
+                if (File.Exists(FullName))
+                {
+                    File.Delete(FullName);
+                }
+            }
+
+            stream = new FileStream(FullName, FileMode.Create, FileAccess.Write, FileShare.Read);
+            writer = new StreamWriter(stream);
+        }
 
         /// <inheritdoc />
         public void Dispose()

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <LangVersion>7.1</LangVersion>
     </PropertyGroup>
@@ -12,7 +12,10 @@
     <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
         <VersionBase>1.0.1</VersionBase>
         <IncludeSymbols>true</IncludeSymbols>
-        <VersionSuffix>-debug-$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</VersionSuffix>
+        <IncrementalVersionDay>$([System.DateTime]::UtcNow.ToString("yy"))$([System.DateTime]::UtcNow.DayOfYear.ToString("D3"))</IncrementalVersionDay>
+        <IncrementalVersionMin>$([System.DateTime]::UtcNow.TimeOfDay.TotalMinutes.ToString("F0"))</IncrementalVersionMin>
+
+        <VersionSuffix>-preview-$(IncrementalVersionDay).$(IncrementalVersionMin)</VersionSuffix>
     </PropertyGroup>
     
     <PropertyGroup>
@@ -25,10 +28,11 @@
         <PackageProjectUrl>http://tilde.love</PackageProjectUrl>
         <Authors>Phill Tew</Authors>
         <Copyright>Copyright (c) Tilde Love Project. All rights reserved.</Copyright>
+        <PackageIconUrl>https://s.gravatar.com/avatar/d56be08732b3f23cc1b11662034d8b1e?s=64</PackageIconUrl>
     </PropertyGroup>
 
     <PropertyGroup>
-        <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -39,13 +43,19 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="CommandLineParser" Version="2.3.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+        <PackageReference Include="System.CommandLine.Experimental" Version="0.2.0-alpha.19174.3" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Tilde.Core\Tilde.Core.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <None Remove="Tilde.Cli.xml" />
+      <None Remove="Verbs\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Remove="Verbs\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Remove="Verbs\**" />
     </ItemGroup>
 </Project>

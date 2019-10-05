@@ -11,7 +11,7 @@ namespace Tilde.Core.Projects
         [JsonProperty("hash")]
         public string Hash { get; set; }
 
-        [JsonProperty("path")]
+        [JsonProperty("uri")]
         public Uri Uri { get; set; }
     }
 }

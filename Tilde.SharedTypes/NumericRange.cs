@@ -7,13 +7,10 @@ namespace Tilde.SharedTypes
 {
     public struct NumericRange
     {
-        [JsonProperty("min")]
-        public double Minimum;
-        
-        [JsonProperty("max")]
-        public double Maximum;
-        
-        [JsonProperty("step")]
-        public double Step;
+        [JsonProperty("min")] public double Minimum;
+
+        [JsonProperty("max")] public double Maximum;
+
+        [JsonProperty("step")] public double Step;
     }
 }

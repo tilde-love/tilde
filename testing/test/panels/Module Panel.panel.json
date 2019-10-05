@@ -1,0 +1,103 @@
+[
+    {
+        "source": "bool1", 
+        "type": "Toggle", 
+        "size": "Half",
+        "label": "Bool Toggle"
+    },
+    
+    {
+        "source": "bool1", 
+        "type": "Checkbox", 
+        "size": "Half",
+        "label": "Bool Checkbox"
+    },
+    
+    {
+        "source": "bool1", 
+        "type": "RadioButton", 
+        "size": "Half",
+        "label": "Bool Radio" 
+    },
+    
+    {
+        "source": "bool1", 
+        "type": "SelectBox", 
+        "size": "Half",
+        "label": "Bool Select"
+    },
+    
+    {
+        "source": "bool1", 
+        "type": "Value", 
+        "size": "Half",
+        "label": "Bool Value"
+    },
+    
+    { "type": "Break", "size": "Full" },
+    
+    {
+        "source": "int1", 
+        "type": "Slider", 
+        "size": "Half",
+        "label": "Int Slider (default range)"
+    },
+        
+    {
+        "source": "int1", 
+        "type": "Slider", 
+        "size": "Half",
+        "label": "Int Slider (override range)",
+        "range": { "min": 0, "max": 100, "step": 1 }
+    },
+    
+    {
+        "source": "int1", 
+        "type": "Value", 
+        "size": "Half",
+        "label": "Int Value"
+    },
+    
+    { "type": "Break", "size": "Full" },
+    
+    
+    {
+        "source": "float1", 
+        "type": "Slider", 
+        "size": "Half",
+        "label": "Int Slider (default range)"
+    },
+        
+    {
+        "source": "float1", 
+        "type": "Slider", 
+        "size": "Half",
+        "label": "Float Slider (override range)",
+        "range": { "min": 0, "max": 10, "step": 0.1 }
+    },
+    
+    {
+        "source": "float1", 
+        "type": "Value", 
+        "size": "Half",
+        "label": "Int Value"
+    },
+    
+    { "type": "Break", "size": "Full" },
+    
+    {
+        "source": "enum1", 
+        "type": "RadioButton", 
+        "size": "Half",
+        "label": "Enum Radio"
+    },
+    
+    {
+        "source": "enum1", 
+        "type": "SelectBox", 
+        "size": "Half",
+        "label": "Enum Select"
+    },
+    
+    { "type": "Break", "size": "Full" }
+]

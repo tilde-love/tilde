@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Tilde.Core;
-using Tilde.Core.Controls;
 using Tilde.Core.Projects;
+using Tilde.Core.Work;
 using Tilde.SharedTypes;
 
 namespace Tilde.Host.Hubs.Client
@@ -18,20 +18,22 @@ namespace Tilde.Host.Hubs.Client
     {
         private readonly IHubContext<ClientHub, IClient> hubContext;
         private readonly ProjectManager projectManager;
-        private readonly IRuntime runtime;
+        private readonly Boss boss;
+        //private readonly IRuntime runtime;
 
-        public ClientService(IHubContext<ClientHub, IClient> hubContext, IRuntime runtime, ProjectManager projectManager)
+        public ClientService(IHubContext<ClientHub, IClient> hubContext, ProjectManager projectManager, Boss boss)
         {
             this.hubContext = hubContext;
-            this.runtime = runtime;
+//            this.runtime = runtime;
             this.projectManager = projectManager;
+            this.boss = boss;
         }
 
         /// <inheritdoc />
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            runtime.StateChanged += StateChanged;
-            runtime.ProjectChanged += ProjectChanged;
+//            runtime.StateChanged += StateChanged;
+//            runtime.ProjectChanged += ProjectChanged;
 
             projectManager.ProjectsChanged += ProjectsChanged;
             projectManager.ProjectChanged += ProjectChanged;
@@ -41,15 +43,16 @@ namespace Tilde.Host.Hubs.Client
             projectManager.DataSourceChanged += DataSourceChanged;
             projectManager.ControlValueChanged += ControlValueChanged;
 
+            boss.WorkChanged += WorkChanged; 
+
             return Task.CompletedTask;
         }
 
         /// <inheritdoc />
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            runtime.StateChanged -= StateChanged;
-            runtime.ProjectChanged -= ProjectChanged;
-
+//            runtime.StateChanged -= StateChanged;
+//            runtime.ProjectChanged -= ProjectChanged;
             projectManager.ProjectsChanged -= ProjectsChanged;
             projectManager.ProjectChanged -= ProjectChanged;
             projectManager.FileChanged -= FileChanged;
@@ -60,6 +63,16 @@ namespace Tilde.Host.Hubs.Client
 
             return Task.CompletedTask;
         }
+        
+        private async void WorkChanged(Laborer laborer)
+        {
+            Console.WriteLine($"Laborer {laborer.Name}, {laborer.Runner.State}" );
+            
+            await hubContext
+                .Clients
+                .All
+                .OnWorkChanged(laborer);
+        }
 
         private async void ControlPanelChanged(Uri project, Uri panelUri, ControlPanel panel)
         {
@@ -69,7 +82,11 @@ namespace Tilde.Host.Hubs.Client
                 .OnControlPanel(project, panelUri, panel);
         }
 
-        private async void ControlValueChanged(Uri project, Uri control, string connectionId, object value)
+        private async void ControlValueChanged(
+            Uri project,
+            Uri control,
+            string connectionId,
+            object value)
         {
             if (connectionId != null)
             {
@@ -119,12 +136,12 @@ namespace Tilde.Host.Hubs.Client
                 .OnProjects(projects);
         }
 
-        private async void StateChanged(object sender, EventArgs e)
-        {
-            await hubContext
-                .Clients
-                .All
-                .OnStateChange(runtime.State);
-        }
+//        private async void StateChanged(object sender, EventArgs e)
+//        {
+//            await hubContext
+//                .Clients
+//                .All
+//                .OnStateChange(runtime.State);
+//        }
     }
 }

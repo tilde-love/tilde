@@ -7,38 +7,38 @@ using Newtonsoft.Json;
 namespace Tilde.SharedTypes
 {
     /// <summary>
-    /// Definition of a control
+    ///     Definition of a control
     /// </summary>
     public struct Control
     {
         /// <summary>
-        /// Uri of the data source
+        ///     Uri of the data source
         /// </summary>
         [JsonProperty("source")]
         public Uri DataSource;
 
         /// <summary>
-        /// Control type
+        ///     Control type
         /// </summary>
         [JsonProperty("type")]
         public ControlType ControlType;
 
         /// <summary>
-        /// Layout
+        ///     Size
         /// </summary>
         [JsonProperty("size")]
         public LayoutSize Size;
 
         /// <summary>
-        /// Label
+        ///     Label
         /// </summary>
         [JsonProperty("label")]
         public string Label;
 
         /// <summary>
-        /// Numerical value range
+        ///     Numerical value range
         /// </summary>
         [JsonProperty("range")]
-        public NumericRange? NumericRange;             
+        public NumericRange? NumericRange;
     }
 }

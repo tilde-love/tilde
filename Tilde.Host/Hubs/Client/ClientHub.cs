@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Tilde.Core.Projects;
 
 namespace Tilde.Host.Hubs.Client
-{    
+{
     // ReSharper disable once ClassNeverInstantiated.Global
     public class ClientHub : Hub<IClient>
     {
@@ -17,7 +17,7 @@ namespace Tilde.Host.Hubs.Client
         {
             this.projectManager = projectManager;
         }
-        
+
         /// <inheritdoc />
         public override Task OnConnectedAsync()
         {
@@ -33,18 +33,18 @@ namespace Tilde.Host.Hubs.Client
 
             return base.OnDisconnectedAsync(exception);
         }
-        
+
         public async Task UpdateValue(Uri project, Uri uri, object value)
         {
             Console.WriteLine($"UpdateValue: {project}/{uri} {value}");
-            
+
             if (projectManager.Projects.TryGetValue(project, out Project proj) == false)
             {
-                return; 
+                return;
             }
 
             //await proj.Controls.UpdateValue(uri, Context.ConnectionId, value); 
             await proj.Controls.UpdateValue(uri, null, value);
-        }        
+        }
     }
 }

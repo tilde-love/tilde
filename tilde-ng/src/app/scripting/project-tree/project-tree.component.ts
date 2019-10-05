@@ -1,8 +1,8 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Subscription, BehaviorSubject, from, of as observableOf} from 'rxjs';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import {ProjectDataService} from '../project-data.service';
-import {Project} from '../project-types';
+import {Project, ProjectFile} from '../_model/project-types';
 
 export enum FileType {
   File = 0,
@@ -37,17 +37,12 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
       node => observableOf(Object.values(node.children))
       );
 
-      //   Object
-      //   .keys(node.children)
-      //   .map((key) => {
-      //   return node.children[key];
-      // })));
-
   dataSource: FileNode[] = [];
   treeState: { [uri: string]: boolean } = {};
   private _projectSubscription: Subscription;
 
-  constructor(private projectDataService: ProjectDataService) {
+  constructor(private projectDataService: ProjectDataService,
+              private changeDetectorRefs: ChangeDetectorRef) {
 
   }
 
@@ -60,6 +55,9 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     this._projectSubscription = this.project.subscribe((project) => {
+
+      // console.log(`project tree updated: ${project.uri}`);
+
       this.treeState = ProjectDataService.getProjectTreeState(project);
 
       const nodes: FileNode[] = [];
@@ -69,56 +67,76 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
         nodes.push(fileNode);
       }
 
-      uri = `/projects/${project.uri}/readme`;
-      const readme: FileNode = {
-        isOpen: this.treeState[uri],
-        filename: 'readme', fileType: FileType.File, uri: uri, icon: 'insert_drive_file',
-        color: '',
-        children: {}
-      };
+      if (project.uri !== 'docs') {
 
-      uri = `/projects/${project.uri}/log`;
-      const log: FileNode = {
-        isOpen: this.treeState[uri],
-        filename: 'log', fileType: FileType.File, uri: uri, icon: 'receipt',
-        color: '',
-        children: {}
-      };
+        uri = `/projects/${project.uri}/log`;
+        const log: FileNode = {
+          isOpen: this.treeState[uri],
+          filename: 'log', fileType: FileType.File, uri: uri, icon: 'receipt',
+          color: '',
+          children: {}
+        };
 
-      uri = `/projects/${project.uri}/build`;
-      const build: FileNode = {
-        isOpen: this.treeState[uri],
-        filename: 'build', fileType: FileType.File, uri: uri, icon: 'feedback',
-        color: '',
-        children: {}
-      };
+        uri = `/projects/${project.uri}/build`;
+        const build: FileNode = {
+          isOpen: this.treeState[uri],
+          filename: 'build', fileType: FileType.File, uri: uri, icon: 'feedback',
+          color: '',
+          children: {}
+        };
 
-      uri = `/projects/${project.uri}/settings`;
-      const settings: FileNode = {
-        isOpen: this.treeState[uri],
-        filename: 'settings', fileType: FileType.File, uri: uri, icon: 'settings',
-        color: '',
-        children: {}
-      };
+        uri = `/projects/${project.uri}/settings`;
+        const settings: FileNode = {
+          isOpen: this.treeState[uri],
+          filename: 'settings', fileType: FileType.Partial, uri: uri, icon: 'settings',
+          color: '',
+          children: {}
+        };
 
-      nodes.push(readme);
-      nodes.push(log);
-      nodes.push(build);
-      nodes.push(settings);
+        uri = `/projects/${project.uri}/~project`;
+        settings.children['project'] = {
+          isOpen: this.treeState[uri],
+          filename: 'Project settings', fileType: FileType.File, uri: uri, icon: 'settings',
+          color: 'accent',
+          children: {}
+        };
+
+        uri = `/projects/${project.uri}/~watch`;
+        settings.children['watch'] = {
+          isOpen: this.treeState[uri],
+          filename: 'Watch files', fileType: FileType.File, uri: uri, icon: 'settings',
+          color: 'accent',
+          children: {}
+        };
+
+        uri = `/projects/${project.uri}/~ignore`;
+        settings.children['ignore'] = {
+          isOpen: this.treeState[uri],
+          filename: 'Ignore files', fileType: FileType.File, uri: uri, icon: 'settings',
+          color: 'accent',
+          children: {}
+        };
+
+        nodes.push(log);
+        nodes.push(build);
+        nodes.push(settings);
+      }
 
       this.dataSource = nodes;
+
+      this.changeDetectorRefs.detectChanges();
     });
   }
 
-  private buildFileTree(baseUri: string, values: string[]): FileNode[] {
+  private buildFileTree(baseUri: string, values: ProjectFile[]): FileNode[] {
 
     values.sort();
 
-    const folders: string[] = Array.from(values, (path: string) => path.substring(0, path.lastIndexOf('/')))
+    const folders: string[] = Array.from(values, (file: ProjectFile) => file.uri.substring(0, file.uri.lastIndexOf('/')))
       .filter((v, i, a) => v !== '' && a.indexOf(v) === i);
 
     const folderPathArrays: string[][] = Array.from(folders, (path: string) => path.split('/'));
-    const pathArrays: string[][] = Array.from(values, (path: string) => path.split('/'));
+    const pathArrays: string[][] = Array.from(values, (file: ProjectFile) => file.uri.split('/'));
 
     const root: FileNode = {
       isOpen: false,
@@ -167,6 +185,11 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
       const filename: string = path[path.length - 1];
       const uri = `${parent.uri}/${filename}`;
 
+      if (filename === '~project' ||
+        filename === '~watch' ||
+        filename === '~ignore') {
+      } else
+
       if (filename.endsWith('.panel.json')) {
         const panelFilename = filename.substring(0, filename.length - '.json'.length);
         const panelUri = `${parent.uri}/${panelFilename}`;
@@ -177,6 +200,31 @@ export class ProjectTreeComponent implements OnInit, OnDestroy {
           fileType: FileType.Partial,
           uri: panelUri,
           icon: 'tune',
+          color: '',
+          children: {}
+        };
+        partial.children[filename] = {
+          isOpen: this.treeState[uri],
+          filename: filename,
+          fileType: FileType.File,
+          uri: uri,
+          icon: 'insert_drive_file',
+          color: 'accent',
+          children: {}
+        };
+
+        parent.children[panelFilename] = partial;
+
+      } else if (filename.endsWith('.md')) {
+        const panelFilename = filename.substring(0, filename.length - '.md'.length);
+        const panelUri = `${parent.uri}/${panelFilename}`;
+
+        const partial = {
+          isOpen: this.treeState[panelUri],
+          filename: panelFilename,
+          fileType: FileType.Partial,
+          uri: panelUri,
+          icon: 'insert_drive_file',
           color: '',
           children: {}
         };

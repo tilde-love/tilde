@@ -11,21 +11,31 @@ namespace Tilde.Cli.Verbs
 {
     [Verb("stop", HelpText = "Stop a project.")]
     public class StopVerb : RemoteVerb
-    {       
+    {
         [Usage(ApplicationAlias = "tilde")]
-        public static IEnumerable<Example> Examples 
+        public static IEnumerable<Example> Examples
         {
-            get 
+            get
             {
-                yield return new Example("Stop a project", new StartVerb { Project = "PROJECT", ServerUri = new Uri("http://localhost:5000", UriKind.RelativeOrAbsolute) });
+                yield return new Example(
+                    "Stop a project",
+                    new StartVerb
+                    {
+                        Project = "PROJECT",
+                        ServerUri = new Uri(
+                            "http://localhost:5678",
+                            UriKind.RelativeOrAbsolute
+                        )
+                    }
+                );
             }
         }
-        
+
         public static int Stop(StopVerb opts)
         {
             if (opts.ServerUri == null)
             {
-                opts.ServerUri = new Uri("http://localhost:5000/", UriKind.RelativeOrAbsolute); 
+                opts.ServerUri = new Uri("http://localhost:5678/", UriKind.RelativeOrAbsolute);
             }
 
             try

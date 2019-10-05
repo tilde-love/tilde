@@ -9,27 +9,22 @@ using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.FileSystemGlobbing;
 using Newtonsoft.Json;
+using Tilde.Core.Build;
 using Tilde.Core.Controls;
 
 namespace Tilde.Core.Projects
 {
     public class Project : IComparable<Project>, IDisposable
     {
-        [JsonIgnore] private static readonly List<string> CodeFileExtensions = new List<string> { ".cs", ".csproj" };
-        
-        [JsonIgnore] private static readonly List<string> DataFileExtensions = new List<string> { ".json", ".xml"};
-        
-        [JsonIgnore] private static readonly List<string> IgnoreFolders = new List<string> { "bin/", "obj/"};
-        
-        [JsonIgnore] private static readonly List<string> IgnoreFiles = new List<string> { "build", "log"};
-
         [JsonProperty("deleted")] public bool Deleted;
 
         [JsonProperty("errors")] public Dictionary<Uri, List<Error>> Errors = new Dictionary<Uri, List<Error>>();
 
-        [JsonIgnore] public Dictionary<Uri, ProjectFile> Files = new Dictionary<Uri, ProjectFile>();
+        [JsonIgnore] public Dictionary<Uri, ProjectFile> ProjectFiles = new Dictionary<Uri, ProjectFile>();
 
         [JsonIgnore] public readonly DirectoryInfo ProjectFolder;
 
@@ -37,25 +32,28 @@ namespace Tilde.Core.Projects
 
         [JsonIgnore] public int Version = 0;
 
-        [JsonIgnore] private readonly FileSystemWatcher allFilesWatcher;
-
         [JsonIgnore] private readonly AggregatedListDebouncer<Uri> fileDebouncer;
 
-        [JsonProperty("files")]
-        public IEnumerable<Uri> FileUris => Files.Keys;
+        private Matcher ignore = new Matcher();
+        private Matcher watch = new Matcher();
 
         [JsonProperty("controls")]
         public ControlGroup Controls { get; }
 
+        [JsonProperty("definition")]
+        public ProjectDefinition Definition { get; private set; }
+
+        [JsonProperty("files")]
+        public IEnumerable<ProjectFile> Files => ProjectFiles.Values.OrderBy(pf => pf.Uri.ToString());
+
         [JsonConstructor]
         internal Project()
         {
-
         }
 
         public Project(DirectoryInfo projectFolder)
         {
-            ProjectFolder = projectFolder;
+            ProjectFolder = new DirectoryInfo(projectFolder.FullName);
 
             Uri = new Uri(ProjectFolder.Name, UriKind.RelativeOrAbsolute);
 
@@ -63,21 +61,8 @@ namespace Tilde.Core.Projects
 
             fileDebouncer = new AggregatedListDebouncer<Uri>(UpdateFiles, 10, 100);
 
-            allFilesWatcher = new FileSystemWatcher
-            {
-                Path = ProjectFolder.FullName,
-                EnableRaisingEvents = true,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
-                IncludeSubdirectories = true
-            };
-
-            allFilesWatcher.Changed += OnAnyChanged;
-            allFilesWatcher.Created += OnAnyChanged;
-            allFilesWatcher.Deleted += OnDeleted;
-            allFilesWatcher.Renamed += OnRenamed;
-            
             Cache();
-            
+
             Controls = new ControlGroup(this);
         }
 
@@ -106,16 +91,10 @@ namespace Tilde.Core.Projects
         /// <inheritdoc />
         public void Dispose()
         {
-            allFilesWatcher?.Dispose();
-            
             fileDebouncer?.Dispose();
-            
+
             Controls.Dispose();
         }
-
-        public event EventHandler CodeFilesChanged;
-
-        public event EventHandler DataFilesChanged;
 
         public void Delete()
         {
@@ -146,13 +125,31 @@ namespace Tilde.Core.Projects
             }
         }
 
+        public event FileEvent FileChanged;
+
+        public string GetFilePath(Uri filename)
+        {
+            return Path.Combine(ProjectFolder.FullName, filename.ToString());
+        }
+
+        public Uri GetFileUri(string fullName)
+        {
+            return new Uri(
+                fullName
+                    .Substring(ProjectFolder.FullName.Length)
+                    .Replace('\\', '/')
+                    .TrimStart('/'),
+                UriKind.RelativeOrAbsolute
+            );
+        }
+
         public async Task<byte[]> Pack()
         {
             using (MemoryStream memoryStream = new MemoryStream())
             {
                 using (ZipArchive archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
                 {
-                    foreach (Uri projectFile in Files.Keys)
+                    foreach (Uri projectFile in ProjectFiles.Keys)
                     {
                         ZipArchiveEntry zipArchiveEntry = archive.CreateEntry(projectFile.ToString());
 
@@ -170,7 +167,6 @@ namespace Tilde.Core.Projects
         }
 
         public event ProjectEvent ProjectChanged;
-        public event FileEvent FileChanged;  
 
         public byte[] ReadFileBytes(Uri filename)
         {
@@ -185,6 +181,30 @@ namespace Tilde.Core.Projects
                 fileStream.CopyTo(memoryStream);
 
                 return memoryStream.ToArray();
+            }
+        }
+
+        public IEnumerable<string> ReadFileLines(Uri filename)
+        {
+            string filePath = GetFilePath(filename);
+
+            if (File.Exists(filePath) == false)
+            {
+                yield break;
+            }
+
+            using (FileStream fileStream = new FileStream(
+                GetFilePath(filename),
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite
+            ))
+            using (StreamReader reader = new StreamReader(fileStream))
+            {
+                while (reader.EndOfStream == false)
+                {
+                    yield return reader.ReadLine();
+                }
             }
         }
 
@@ -251,6 +271,8 @@ namespace Tilde.Core.Projects
             }
         }
 
+        public event EventHandler WatchFilesChanged;
+
         public async Task<bool> WriteFile(Uri filename, string contents)
         {
             return await WriteFile(filename, Encoding.UTF8.GetBytes(contents ?? string.Empty));
@@ -260,7 +282,7 @@ namespace Tilde.Core.Projects
         {
             try
             {
-                if (Files.TryGetValue(filename, out ProjectFile projectFile))
+                if (ProjectFiles.TryGetValue(filename, out ProjectFile projectFile))
                 {
                     string hash = GetHash(contents);
 
@@ -294,22 +316,85 @@ namespace Tilde.Core.Projects
             }
         }
 
+        public void OnAnyChanged(object sender, FileSystemEventArgs e)
+        {
+            if (FilterFiles(e.FullPath) == false)
+            {
+                return;
+            }
+
+            fileDebouncer.Invoke(GetFileUri(e.FullPath));
+        }
+
+        public void OnDeleted(object sender, FileSystemEventArgs e)
+        {
+            if (FilterFiles(e.FullPath) == false)
+            {
+                return;
+            }
+
+            Uri file = GetFileUri(e.FullPath);
+
+            ProjectFiles.Remove(file);
+
+            FileChanged?.Invoke(Uri, file, null);
+
+            Debug.WriteLine($"Deleted {Uri}/{file}");
+        }
+
+        public void OnRenamed(object sender, RenamedEventArgs e)
+        {
+            Uri oldFile = GetFileUri(e.OldFullPath);
+            Uri newFile = GetFileUri(e.FullPath);
+
+            ProjectFiles.Remove(oldFile);
+
+            if (FilterFiles(e.FullPath) == false)
+            {
+                return;
+            }
+
+            ProjectFile projectFile = new ProjectFile {Hash = GetFileHash(newFile), Uri = newFile};
+
+            ProjectFiles[newFile] = projectFile;
+
+            Debug.WriteLine($"Rename {Uri}/{oldFile} to {Uri}/{newFile}");
+
+            FileChanged?.Invoke(Uri, oldFile, null);
+            FileChanged?.Invoke(Uri, projectFile.Uri, projectFile.Hash);
+
+            ProjectChanged?.Invoke(this);
+        }
+
         private void Cache()
         {
-            Files = Directory.GetFiles(
+//            
+//            Directory.GetFiles(
+//                    ProjectFolder.FullName,
+//                    "*",
+//                    SearchOption.AllDirectories
+//                )
+//                .Where(FilterFiles)
+//                
+
+            ProcessTildeFile(new Uri("~project", UriKind.RelativeOrAbsolute));
+            ProcessTildeFile(new Uri("~ignore", UriKind.RelativeOrAbsolute));
+            ProcessTildeFile(new Uri("~watch", UriKind.RelativeOrAbsolute));
+
+            ProjectFiles = Directory.GetFiles(
                     ProjectFolder.FullName,
                     "*",
                     SearchOption.AllDirectories
                 )
-                .Where(
-                    s => FilterFiles(s)
-                )
+                .Where(FilterFiles)
+                // ProjectFiles = include.GetResultsInFullPath(ProjectFolder.FullName)
                 .Select(
                     s =>
                     {
                         Uri uri = new Uri(
-                            s.Substring(ProjectFolder.FullName.Length + 1)
-                                .Replace('\\', '/'),
+                            s.Substring(ProjectFolder.FullName.Length)
+                                .Replace('\\', '/')
+                                .TrimStart('/'),
                             UriKind.RelativeOrAbsolute
                         );
 
@@ -323,70 +408,30 @@ namespace Tilde.Core.Projects
                 .ToDictionary(t => t.Uri, v => v);
         }
 
+        private void CreateFolder()
+        {
+            if (Directory.Exists(ProjectFolder.FullName))
+            {
+                return;
+            }
+
+            ProjectFolder.Create();
+        }
+
         private bool FilterFiles(string filepath)
         {
             if (filepath.StartsWith(ProjectFolder.FullName) == false)
             {
-                return false; 
-            }
-
-            string localFilePath = filepath.Substring(ProjectFolder.FullName.Length + 1).Replace("\\", "/");
-
-            if (IgnoreFiles.Contains(localFilePath))
-            {
                 return false;
             }
-            
-            foreach (string folder in IgnoreFolders)
-            {
-                if (localFilePath.StartsWith(folder) == true)
-                {
-                    return false; 
-                }
-            }
 
-            return true; 
-        }
+            string localFilePath = filepath
+                .Substring(ProjectFolder.FullName.Length)
+                .Replace("\\", "/")
+                .TrimStart('/');
 
-        private void CreateFolder()
-        {
-            if (Directory.Exists(ProjectFolder.FullName) == false)
-            {
-                ProjectFolder.Create();
-                
-                File.WriteAllText(Path.Combine(ProjectFolder.FullName, "readme.md"), $"# {Uri}");
-
-                string template = "basic-module";
-
-                string templatePath = Path.Combine(new FileInfo(typeof(Project).Assembly.Location).DirectoryName, "templates", template); 
-                
-                File.WriteAllText(Path.Combine(ProjectFolder.FullName, "readme.md"), $"# {Uri}");
-
-                string projectFile = Path.Combine(templatePath, $"{template}.csproj");
-                
-                File.Copy(projectFile, Path.Combine(ProjectFolder.FullName, $"{Uri}.csproj"));
-
-                foreach (string file in Directory.GetFiles(templatePath, "*", SearchOption.AllDirectories))
-                {
-                    if (file == projectFile)
-                    {
-                        continue;
-                    }
-
-                    string localPath = file.Substring(templatePath.Length + 1);
-
-                    string destinationPath = Path.Combine(ProjectFolder.FullName, localPath); 
-                    
-                    DirectoryInfo directoryInfo = new FileInfo(destinationPath).Directory;
-
-                    if (directoryInfo?.Exists == false)
-                    {
-                        directoryInfo.Create();
-                    }
-
-                    File.Copy(file, destinationPath);
-                }
-            }
+            return ignore.Match(localFilePath)
+                       .HasMatches == false;
         }
 
         private string GetFileHash(Uri filename)
@@ -406,22 +451,8 @@ namespace Tilde.Core.Projects
             }
             catch
             {
-                return string.Empty; 
+                return string.Empty;
             }
-        }
-
-        private string GetFilePath(Uri filename)
-        {
-            return Path.Combine(ProjectFolder.FullName, filename.ToString());
-        }
-
-        private Uri GetFileUri(string fullName)
-        {
-            return new Uri(
-                fullName.Substring(ProjectFolder.FullName.Length + 1)
-                    .Replace('\\', '/'),
-                UriKind.RelativeOrAbsolute
-            );
         }
 
         private string GetHash(byte[] bytes)
@@ -432,54 +463,96 @@ namespace Tilde.Core.Projects
             }
         }
 
-        private void OnAnyChanged(object sender, FileSystemEventArgs e)
+        private Matcher ParseGlobFile(Uri file, bool invertSelection)
         {
-            if (FilterFiles(e.FullPath) == false)
+            Matcher matcher = new Matcher();
+
+            foreach (string line in ReadFileLines(file))
             {
-                return; 
+                if (line.Trim().Length == 0)
+                {
+                    continue;
+                }
+
+                if (line[0] == '#')
+                {
+                    continue;
+                }
+
+                string statement;
+                bool include;
+
+                if (line[0] == '!')
+                {
+                    include = false;
+                    statement = line.Substring(1);
+                }
+                else
+                {
+                    include = true;
+                    statement = line;
+                }
+
+                statement = statement.Trim(); 
+                
+                if (statement.Length == 0)
+                {
+                    continue;
+                }
+
+                include ^= invertSelection;
+
+                if (include)
+                {
+                    matcher.AddInclude(statement);
+                }
+                else
+                {
+                    matcher.AddExclude(statement);
+                }
             }
 
-            fileDebouncer.Invoke(GetFileUri(e.FullPath));
+            return matcher;
         }
 
-        private void OnDeleted(object sender, FileSystemEventArgs e)
+        private void ProcessTildeFile(Uri file)
         {
-            if (FilterFiles(e.FullPath) == false)
+            switch (file.ToString())
             {
-                return; 
+                case "~project":
+                    try
+                    {
+                        Definition = JsonConvert.DeserializeObject<ProjectDefinition>(ReadFileString(file));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Error parsing ~project");
+                    }
+
+                    break;
+                case "~ignore":
+                    try
+                    {
+                        Interlocked.Exchange(ref this.ignore, ParseGlobFile(file, false));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Error parsing ~ignore");
+                    }
+
+                    break;
+                case "~watch":
+                    try
+                    {
+                        Interlocked.Exchange(ref watch, ParseGlobFile(file, false));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Error parsing ~watch");
+                    }
+
+                    break;
             }
-
-            Uri file = GetFileUri(e.FullPath);
-
-            Files.Remove(file);
-
-            FileChanged?.Invoke(Uri, file, null);
-            
-            Debug.WriteLine($"Deleted {Uri}/{file}");
-        }
-
-        private void OnRenamed(object sender, RenamedEventArgs e)
-        {
-            Uri oldFile = GetFileUri(e.OldFullPath);
-            Uri newFile = GetFileUri(e.FullPath);
-
-            Files.Remove(oldFile);
-
-            if (FilterFiles(e.FullPath) == false)
-            {
-                return; 
-            }
-
-            ProjectFile projectFile = new ProjectFile {Hash = GetFileHash(newFile), Uri = newFile};
-
-            Files[newFile] = projectFile; 
-
-            Debug.WriteLine($"Rename {Uri}/{oldFile} to {Uri}/{newFile}");
-
-            FileChanged?.Invoke(Uri, oldFile, null);
-            FileChanged?.Invoke(Uri, projectFile.Uri, projectFile.Hash);
-            
-            ProjectChanged?.Invoke(this);
         }
 
         private static byte[] ReadEntryBytes(ZipArchiveEntry entry)
@@ -495,8 +568,7 @@ namespace Tilde.Core.Projects
         private void UpdateFiles(Uri[] files)
         {
             bool anyChange = false;
-            bool codeFileChanged = false;
-            bool dataFileChanged = false;
+            bool watchedFileChanged = false;
 
             foreach (Uri file in files)
             {
@@ -509,20 +581,21 @@ namespace Tilde.Core.Projects
 
                 string hash = GetFileHash(file);
 
-                string extension = Path.GetExtension(file.ToString()); 
+                string extension = Path.GetExtension(file.ToString());
 
-                if (Files.TryGetValue(file, out ProjectFile projectFile) == false)
+                if (ProjectFiles.TryGetValue(file, out ProjectFile projectFile) == false)
                 {
                     Debug.WriteLine($"New {Uri}/{file}");
 
-                    Files[file] = new ProjectFile {Hash = hash, Uri = file};
+                    ProjectFiles[file] = new ProjectFile {Hash = hash, Uri = file};
 
                     anyChange = true;
-                    codeFileChanged |= CodeFileExtensions.Contains(extension);
-                    dataFileChanged |= DataFileExtensions.Contains(extension);
+                    watchedFileChanged |= watch.Match(filePath)
+                        .HasMatches;
 
+                    ProjectChanged?.Invoke(this);
                     FileChanged?.Invoke(Uri, file, hash);
-                    
+
                     continue;
                 }
 
@@ -533,26 +606,22 @@ namespace Tilde.Core.Projects
                     continue;
                 }
 
-                Files[file] = new ProjectFile {Hash = hash, Uri = file};
+                ProjectFiles[file] = new ProjectFile {Hash = hash, Uri = file};
 
                 anyChange = true;
-                codeFileChanged |= CodeFileExtensions.Contains(extension);
-                dataFileChanged |= DataFileExtensions.Contains(extension);
+
+                watchedFileChanged |= watch.Match(filePath)
+                    .HasMatches;
 
                 Debug.WriteLine($"Changed {Uri}/{file}");
-                
+
                 FileChanged?.Invoke(Uri, file, hash);
             }
 
-            if (codeFileChanged)
+            if (watchedFileChanged)
             {
-                Debug.WriteLine($"Code files change detected {Uri}");
-                CodeFilesChanged?.Invoke(this, EventArgs.Empty);
-            }
-            else if (dataFileChanged)
-            {
-                Debug.WriteLine($"Data files change detected {Uri}");
-                DataFilesChanged?.Invoke(this, EventArgs.Empty);
+                Debug.WriteLine($"Watched files change detected {Uri}");
+                WatchFilesChanged?.Invoke(this, EventArgs.Empty);
             }
         }
     }

@@ -5,9 +5,9 @@ namespace Tilde.Cli.Verbs
 {
     public enum ListableItemTypes
     {
-        Projects, 
+        Projects,
         Files,
-        Controls, 
-        Clients,
+        Controls,
+        Clients
     }
 }

@@ -16,12 +16,10 @@ namespace Tilde.Host.Hubs.Module
     {
         private readonly IHubContext<ModuleHub, IModuleClient> hubContext;
         private readonly ProjectManager projectManager;
-        private readonly IRuntime runtime;
 
-        public ModuleService(IHubContext<ModuleHub, IModuleClient> hubContext, IRuntime runtime, ProjectManager projectManager)
+        public ModuleService(IHubContext<ModuleHub, IModuleClient> hubContext, ProjectManager projectManager)
         {
             this.hubContext = hubContext;
-            this.runtime = runtime;
             this.projectManager = projectManager;
         }
 
@@ -29,24 +27,28 @@ namespace Tilde.Host.Hubs.Module
         public Task StartAsync(CancellationToken cancellationToken)
         {
             projectManager.ControlUpdated += ControlUpdated;
-            
-            return Task.CompletedTask;
-        }
 
-        private async void ControlUpdated(Uri project, Uri control, string connectionId, object value)
-        {
-            await hubContext
-                .Clients
-                .Group(project.ToString())
-                .OnValueChanged(control, connectionId, value); 
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc />
         public Task StopAsync(CancellationToken cancellationToken)
         {
             projectManager.ControlUpdated -= ControlUpdated;
-            
+
             return Task.CompletedTask;
+        }
+
+        private async void ControlUpdated(
+            Uri project,
+            Uri control,
+            string connectionId,
+            object value)
+        {
+            await hubContext
+                .Clients
+                .Group(project.ToString())
+                .OnValueChanged(control, connectionId, value);
         }
     }
 }

@@ -3,124 +3,47 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.CommandLine;
+using System.CommandLine.Binding;
+using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
 using System.Linq;
-using System.Net;
-using CommandLine;
-using CommandLine.Text;
-using CSharpx;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using System.Reflection;
 using Tilde.Cli;
+using Tilde.Cli.Resources;
 
 namespace Tilde
 {
     public class Program
     {
-        public static IWebHostBuilder BuildWebHost(ServeVerb opts, string[] args)
-        {
-            string applicationPath = new FileInfo(typeof(Program).Assembly.Location).DirectoryName; 
-            
-            IWebHostBuilder builder = WebHost.CreateDefaultBuilder(args)
-                // .SuppressStatusMessages(true) //disable the status messages
-                .UseSetting($"{nameof(ServeVerb)}.{nameof(ServeVerb.ServerUri)}", opts.ServerUri.ToString())
-                .UseSetting($"{nameof(ServeVerb)}.{nameof(ServeVerb.ProjectFolder)}", opts.ProjectFolder)
-                .UseSetting($"{nameof(ServeVerb)}.{nameof(ServeVerb.WwwRoot)}", opts.WwwRoot)
-                .UseUrls(opts.ServerUri.ToString())
-                .UseWebRoot(opts.WwwRoot)
-                .UseSetting(WebHostDefaults.SuppressStatusMessagesKey, "True") // add this line
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    var env = hostingContext.HostingEnvironment;
-                    config
-                        .AddJsonFile(Path.Combine(applicationPath, "appsettings.json"), true, true)
-                        .AddJsonFile(Path.Combine(applicationPath, $"appsettings.{env.EnvironmentName}.json"), true, true);
-                    config.AddEnvironmentVariables();
-                })
-//                .ConfigureLogging((hostingContext, logging) =>
-//                {
-//                    logging.ClearProviders(); 
-////                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-////                    logging.AddConsole();
-////                    logging.AddDebug();
-////                    logging.AddEventSourceLogger();
-//                })
-                .UseStartup<Startup>();
-            
-            return builder;
-        }                
-
         public static int Main(string[] args)
         {
-            Parser parser = new Parser(
-                parserSettings => { parserSettings.CaseInsensitiveEnumValues = true; } 
-            );          
+            AllResources.AddDefaultResources();
             
-            List<Type> verbs = new List<Type>();
+            AllResources.Resources.Add(new ServerResource());
             
-            verbs.Add(typeof(ServeVerb));
-
-            verbs.AddRange(Commands.Verbs);
-
-            ParserResult<object> parserResult = parser.ParseArguments(
-                args,
-                verbs.ToArray()
-            );
-            
-            parserResult.WithParsed((ServeVerb opts) => Serve(opts));
-            
-            Commands.Parse(parserResult);
-            
-            Commands.ParseErrors(parserResult);
-            
-            return 0; 
-        }        
-
-        public static int Serve(ServeVerb opts)
-        {
-            if (string.IsNullOrWhiteSpace(opts.ProjectFolder))
+            RootCommand root = new RootCommand("tilde")
             {
-                opts.ProjectFolder = "./"; 
+                Description = "Tilde Love - Containerisation for artists."
+            };
+
+            foreach (var command in AllResources.GetCommands())
+            {
+                root.Add(command);
             }
 
-            if (opts.ServerUri == null)
-            {
-                opts.ServerUri = new Uri("http://localhost:5000", UriKind.RelativeOrAbsolute); 
-            }
+            var parser = new CommandLineBuilder(root)
+                .UseSuggestDirective()
+                .UseTypoCorrections()
+                .UseHelp()
+                //.UseHelpBuilderFactory()
+                .Build();
 
-            string applicationPath = new FileInfo(typeof(Program).Assembly.Location).DirectoryName; 
+            var parseResult = parser.Parse(args);
             
-            if (string.IsNullOrWhiteSpace(opts.WwwRoot))
-            {
-                opts.WwwRoot = string.IsNullOrWhiteSpace(opts.WwwRoot) ? Path.Combine(applicationPath, "wwwroot") : opts.WwwRoot; 
-            }
+            // Console.WriteLine(parseResult.Diagram());
 
-            Logo.PrintLogo();
-
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-
-            try
-            {
-                BuildWebHost(opts, new string[0])
-                    .Build()
-                    .Run();
-
-                return 0; 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-                
-                return -1; 
-            }                       
-        }        
-
-        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Console.WriteLine(e.ToString());
+            return parser.InvokeAsync(parseResult).Result;
         }
     }
 }

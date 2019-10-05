@@ -5,14 +5,15 @@ import { GraphLineComponent } from './graph-line/graph-line.component';
 import { ControlComponent } from './control/control.component';
 import { PanelComponent } from './panel/panel.component';
 import {AppMaterialModule} from '../app-material.module';
-import {ShowdownModule} from 'ngx-showdown';
+// import {ShowdownModule} from 'ngx-showdown';
+import {MarkdownModule} from 'ngx-markdown';
 import {FormsModule} from '@angular/forms';
 
 @NgModule({
   imports: [
     CommonModule,
     AppMaterialModule,
-    ShowdownModule,
+    MarkdownModule,
     FormsModule
   ],
   exports: [PanelComponent],

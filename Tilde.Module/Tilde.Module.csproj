@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <LangVersion>7.1</LangVersion>
@@ -13,7 +13,10 @@
     <PropertyGroup Condition="'$(Configuration)' == 'Debug' ">
         <VersionBase>1.0.1</VersionBase>
         <IncludeSymbols>true</IncludeSymbols>
-        <VersionSuffix>-debug-$([System.DateTime]::Now.ToString("yyyyMMddHHmm"))</VersionSuffix>
+        <IncrementalVersionDay>$([System.DateTime]::UtcNow.ToString("yy"))$([System.DateTime]::UtcNow.DayOfYear.ToString("D3"))</IncrementalVersionDay>
+        <IncrementalVersionMin>$([System.DateTime]::UtcNow.TimeOfDay.TotalMinutes.ToString("F0"))</IncrementalVersionMin>
+
+        <VersionSuffix>-preview-$(IncrementalVersionDay).$(IncrementalVersionMin)</VersionSuffix>
     </PropertyGroup>
     
     <PropertyGroup>
@@ -26,10 +29,11 @@
         <PackageProjectUrl>http://tilde.love</PackageProjectUrl>
         <Authors>Phill Tew</Authors>
         <Copyright>Copyright (c) Tilde Love Project. All rights reserved.</Copyright>
+        <PackageIconUrl>https://s.gravatar.com/avatar/d56be08732b3f23cc1b11662034d8b1e?s=64</PackageIconUrl>
     </PropertyGroup>
 
     <PropertyGroup>
-        <DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -39,31 +43,9 @@
         <PackageTags>tilde</PackageTags>
     </PropertyGroup>
 
-    
-    <!--<PropertyGroup>-->
-        <!--<TargetFramework>netstandard2.0</TargetFramework>-->
-        <!--<PackageId>Tilde.Module</PackageId>-->
-        <!--<Version>1.0.0</Version>-->
-        <!--<Title>Tilde.Module</Title>-->
-        <!--<Description>Tilde module framework</Description>-->
-        <!--<Authors>Phill Tew</Authors>-->
-        <!--<Copyright>Copyright (c) Tilde Love Project. All rights reserved.</Copyright>-->
-        <!--<Company>Tilde Love Project</Company>-->
-        <!--<PackageProjectUrl>http://tilde.love</PackageProjectUrl>-->
-        <!--<RepositoryUrl>https://github.com/tilde-love/tilde-module</RepositoryUrl>-->
-        <!--<PackageTags>tilde</PackageTags>-->
-        <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
-        <!--<PackageOutputPath>../../.package-store</PackageOutputPath>-->
-        <!--<IncludeSymbols>true</IncludeSymbols>-->
-    <!--</PropertyGroup>-->
-
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.1.0-preview3-35497" />
-      <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Tilde.Module.xml" />
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.1.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     </ItemGroup>
 
     <Import Project="..\Tilde.SharedTypes\Tilde.SharedTypes.projitems" Label="Shared" />
