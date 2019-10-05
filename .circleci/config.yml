@@ -126,7 +126,7 @@ workflows:
             tags:
               only: /.*/
 
-      - publish-latest:
+      - publish-cli-tool:
           context: tilde-global
           requires:
             - tilde-build
