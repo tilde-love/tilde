@@ -72,18 +72,18 @@ jobs:
       - run:
           name: Pack
           command: |
-            mkdir ../.nuget
-            dotnet pack --no-build --no-restore --configuration Release -o ../.nuget
-          working_directory: tilde
-      
+            mkdir ~/nuget
+            dotnet pack --no-build --no-restore --configuration Release -o ~/nuget
+          working_directory: ./
+          
       - store_artifacts:
-          path: ./.nuget
+          path: ~/nuget
           destination: Nuget Packages
           
       - persist_to_workspace:
-          root: ./
+          root: ~/
           paths:
-            - .nuget
+            - nuget
 
   publish-cli-tool:
     docker:
@@ -96,7 +96,7 @@ jobs:
           at: ./
       - run:
           name: Publish to nuget
-          command: find ./.nuget/ | grep .nupkg | while read -r package; do dotnet nuget push "$package" -s https://api.nuget.org/v3/index.json -k $NUGET_API_TOKEN; done
+          command: find ~/nuget/ | grep .nupkg | while read -r package; do dotnet nuget push "$package" -s https://api.nuget.org/v3/index.json -k $NUGET_API_TOKEN; done
           working_directory: ./
 
   publish-github-release:
@@ -116,7 +116,7 @@ workflows:
     jobs:
       - build-ng: 
           context: tilde-global          
-          filters:  # required since `publish-latest` has tag filters AND requires `build`
+          filters:  # required since `publish-latest` has tag filters AND requires `build-ng`
             tags:
               only: /.*/
               
@@ -124,7 +124,7 @@ workflows:
           context: tilde-global
           requires:
             - build-ng
-          filters:  # required since `publish-latest` has tag filters AND requires `build`
+          filters:  # required since `publish-latest` has tag filters AND requires `build-ng`
             tags:
               only: /.*/
 
