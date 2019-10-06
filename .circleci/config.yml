@@ -91,13 +91,10 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-      - attach_workspace:
-          # Must be absolute path or relative path from working_directory
-          at: ./
       - run:
           name: Publish to nuget
           command: find ~/nuget/ | grep .nupkg | while read -r package; do dotnet nuget push "$package" -s https://api.nuget.org/v3/index.json -k $NUGET_API_TOKEN; done
-          working_directory: ./
+          working_directory: ~/
 
   publish-github-release:
     docker:
@@ -108,7 +105,7 @@ jobs:
       - run:
           name: "Publish Release on GitHub"
           command: |
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./artifacts/.nuget/  
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ~/nuget/  
 
 workflows:
   version: 2
