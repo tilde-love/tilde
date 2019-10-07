@@ -2,4 +2,4 @@ rem dotnet publish --no-restore --output ../../builds/tilde --configuration Rele
 
 dotnet tool uninstall -g tilde
 dotnet pack -c Release
-dotnet tool install -g --add-source ../../.package-store tilde 
+dotnet tool install -g --add-source ../../.package-store tilde --version 1.0.2-preview-19280.61
