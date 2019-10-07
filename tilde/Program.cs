@@ -39,11 +39,28 @@ namespace Tilde
                 //.UseHelpBuilderFactory()
                 .Build();
 
-            var parseResult = parser.Parse(args);
-            
-            // Console.WriteLine(parseResult.Diagram());
+            string[] a = args.Length > 0 ? args : new [] { "--help" };
 
-            return parser.InvokeAsync(parseResult).Result;
+            var parseResult = parser.Parse(a);
+
+            try
+            {
+                return parser.InvokeAsync(parseResult).Result;
+            }
+            catch (Exception ex) 
+            {
+                if (parseResult.Errors.Count > 0)
+                {
+                    foreach (var error in parseResult.Errors)
+                    {
+                        Console.Error.WriteLine(error.Message);
+                    }
+
+                    return -1; 
+                }
+
+                throw; 
+            }
         }
     }
 }

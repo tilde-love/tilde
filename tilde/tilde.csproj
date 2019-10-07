@@ -21,7 +21,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(CIRCLE_TAG)' == ''">
-        <VersionBase>1.0.1</VersionBase>
+        <VersionBase>1.0.2</VersionBase>
 
         <IncrementalVersionDay>$([System.DateTime]::UtcNow.ToString("yy"))$([System.DateTime]::UtcNow.DayOfYear.ToString("D3"))</IncrementalVersionDay>
         <IncrementalVersionMin>$([System.DateTime]::UtcNow.TimeOfDay.TotalMinutes.ToString("F0"))</IncrementalVersionMin>
