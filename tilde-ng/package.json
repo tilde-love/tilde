@@ -37,7 +37,7 @@
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^0.12.3",
+    "@angular-devkit/build-angular": "^0.10.0",
     "@angular/cli": "^6.2.3",
     "@angular/compiler-cli": "^6.0.0",
     "@angular/language-service": "^6.0.0",
@@ -48,7 +48,7 @@
     "electron": "^4.0.2",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
-    "karma": "^4.0.0",
+    "karma": "^4.3.0",
     "karma-chrome-launcher": "~2.2.0",
     "karma-coverage-istanbul-reporter": "~1.4.2",
     "karma-jasmine": "~1.1.1",
